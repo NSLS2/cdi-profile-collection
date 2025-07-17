@@ -13,7 +13,9 @@ ophyd = "*"
 python = "3.12.*"
 nslsii = "*"
 PyQt = "*"
+aioca = "*"
 
 [pypi-dependencies]
 cditools = { path = "../cditools", editable = true }
+ophyd-async = "*"
 
