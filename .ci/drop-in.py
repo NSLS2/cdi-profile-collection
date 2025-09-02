@@ -14,4 +14,5 @@ motors = [
 from pprint import pformat
 
 for motor in motors:
+    motor.wait_for_connection()
     print(f"{motor.name}:\n{pformat(motor.read())}")
