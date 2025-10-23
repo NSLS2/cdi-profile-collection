@@ -1,10 +1,10 @@
-import nslsii
 import os
 
-from tiled.client import from_profile, from_uri
+import nslsii
 from bluesky.callbacks.tiled_writer import TiledWriter
-from ophyd.sim import det1, det2
 from bluesky.plans import count
+from ophyd.sim import det1, det2
+from tiled.client import from_profile, from_uri
 
 print("LOADING 00")
 
