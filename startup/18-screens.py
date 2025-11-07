@@ -4,13 +4,16 @@ from typing import Optional
 
 from ophyd import (
     CamBase,
+)
+from ophyd import Component as Cpt
+from ophyd import (
+    EpicsMotor,
+    EpicsSignal,
     ImagePlugin,
     ProsilicaDetector,
     ProsilicaDetectorCam,
     ROIPlugin,
-    EpicsSignal,
 )
-from ophyd import Component as Cpt
 from ophyd.areadetector.plugins import (
     PluginBase,
     ROIStatPlugin_V35,
@@ -74,33 +77,32 @@ class StandardProsilicaCam(ProsilicaCamBase):
             self.roi2: self.cam,
             self.roi3: self.cam,
             self.roi4: self.cam,
-            self.roistat1: self.cam
+            self.roistat1: self.cam,
         }
 
     def stage(self):
         return super().stage()
 
-    # def insert_screen(self, state: float):
-    #     if state > 0.0:  # should this be != to zero?
-    #         self.fs.y.set(0.0)  # insert screen
 
-    # def remove_screen(self, state: float):
-    #     if (
-    #         state == 0.0
-    #     ):  # 25 mm is the current out value, could change after operations
-    #         self.fs.y.set(25.0)  # remove screen
+class StandardScreen(EpicsMotor):
+    def __init__(self, *args, in_position=0.0, out_position=25.0, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._in_position = in_position
+        self._out_position = out_position
 
-    # possible wrapper for after scan cleanup
-    # def set_screen(self, state: float):
-    #     # the screen is "in" (in the beam) when state is 1.0
-    #     if state == 0.0:
-    #         pass
-    #     # otherwise screen is "out" (out of the beam), for normal operations
-    #     elif state > 0.0:
-    #         pass
-    #     else:
-    #         raise ValueError(f"Invalid state {state} for VPM screen.")
-    #     #return super().set(state)
+    def in_position(self, value):
+        self._in_position = value
+
+    def out_position(self, value):
+        self._out_position = value
+
+    def insert(self):
+        """Move screen into the beam"""
+        return self.set(self._in_position)
+
+    def remove(self):
+        """Move screen out of the beam"""
+        return self.set(self._out_position)
 
 
 cam_A1 = StandardProsilicaCam("XF:09IDA-BI{DM:1-Cam:1}", name="cam_A1")
@@ -108,3 +110,7 @@ cam_A2 = StandardProsilicaCam("XF:09IDA-BI{WBStop-Cam:2}", name="cam_A2")
 cam_A3 = StandardProsilicaCam("XF:09IDA-BI{VPM-Cam:3}", name="cam_A3")
 cam_A4 = StandardProsilicaCam("XF:09IDA-BI{HPM-Cam:4}", name="cam_A4")
 cam_A5 = StandardProsilicaCam("XF:09IDA-BI{DM:2-Cam:5}", name="cam_A5")
+
+vpm_fs = StandardScreen("XF:09IDA-OP:1{FS:VPM-Ax:Y}Mtr", name="screen_vpm")
+hpm_fs = StandardScreen("XF:09IDA-OP:1{FS:HPM-Ax:Y}Mtr", name="screen_hpm")
+dm_fs = StandardScreen("XF:09IDA-OP:1{FS:DM2-Ax:Y}Mtr", name="screen_dm")

@@ -3,11 +3,11 @@ import os
 import nslsii
 from bluesky.callbacks.tiled_writer import TiledWriter
 from bluesky.plans import count
+from ophyd.signal import EpicsSignalBase
 from ophyd.sim import det1, det2
 from tiled.client import from_profile, from_uri
 
-from ophyd.signal import EpicsSignalBase
-EpicsSignalBase.set_defaults(timeout=10, connection_timeout=10) 
+EpicsSignalBase.set_defaults(timeout=10, connection_timeout=10)
 
 print("LOADING 00")
 
