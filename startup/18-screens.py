@@ -15,6 +15,7 @@ from ophyd import (
     ProsilicaDetector,
     ProsilicaDetectorCam,
     ROIPlugin,
+    Device
 )
 from ophyd.device import DynamicDeviceComponent
 from ophyd.areadetector.plugins import (
@@ -124,7 +125,7 @@ class ScreenState(DerivedSignal):
     def inverse(self, value):
         if np.isclose(value, self.in_position, atol=1):
             return "in"
-        elif np.isclose(value, self.out_position, atol=1):
+        elif value > self.out_position:
             return "out"
         else:
             return "invalid"
@@ -132,9 +133,9 @@ class ScreenState(DerivedSignal):
 
 class StandardScreen(Device):
     mtr = Cpt(EpicsMotor, "")
-    state = Cpt(ScreenState, "mtr.user_readback", in_position=0.0, out_position=25.0)
+    state = Cpt(ScreenState, derived_from="mtr.user_readback", in_position=0.0, out_position=25.0)
 
-    def set(self, new_position, *, timeout=None, moved_cb=None, wait=None):
+    def set(self, new_position, *, timeout:float|None=None, moved_cb=None, wait:bool|None=None):
         if new_position == "in":
             return self.mtr.set(
                 self.state.in_position, timeout=timeout, moved_cb=moved_cb, wait=wait
@@ -174,3 +175,6 @@ cam_A5 = StandardProsilicaCam("XF:09IDA-BI{DM:2-Cam:5}", name="cam_A5")
 vpm_fs = StandardScreen("XF:09IDA-OP:1{FS:VPM-Ax:Y}Mtr", name="screen_vpm")
 hpm_fs = StandardScreen("XF:09IDA-OP:1{FS:HPM-Ax:Y}Mtr", name="screen_hpm")
 dm_fs = StandardScreen("XF:09IDA-OP:1{FS:DM2-Ax:Y}Mtr", name="screen_dm")
+
+kbvh_fs = StandardScreen("XF:09IDC-OP:1{Mir:KBh-Ax:FS}Mtr", name="screen_kbh")
+kbvv_fs = StandardScreen("XF:09IDC-OP:1{Mir:KBv-Ax:FS}Mtr", name="screen_kbv")
