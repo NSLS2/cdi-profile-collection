@@ -16,13 +16,39 @@ from ophyd import (
     ProsilicaDetectorCam,
     ROIPlugin,
 )
+from ophyd.device import DynamicDeviceComponent
 from ophyd.areadetector.plugins import (
     PluginBase,
     ROIStatPlugin_V35,
     StatsPlugin,
     TransformPlugin,
+    ROIStatNPlugin_V25
 )
+from ophyd.areadetector.trigger_mixins import SingleTrigger
 
+class FullROIStats(ROIStatPlugin_V35):
+    rois = DynamicDeviceComponent({f'roi{j}': (ROIStatNPlugin_V25, f'{j}:', {}) for j in range(1, 9)})
+
+    def set_from_epics(self):
+        root = self
+        while root.parent is not None:
+            root = root.parent
+
+        for k in self.rois.component_names:
+            roi = getattr(self.rois, k)
+            in_use = roi.use.get()
+            if in_use == 'Yes':
+                roi.kind = 'normal'
+            else:
+                roi.kind = 'omitted'
+                continue
+            epics_name = roi.name_.get()
+            roi.name = f'{root.name}_{epics_name}'
+            for cpt in roi.walk_signals():
+                cpt.item.name = f'{root.name}_{epics_name}_{cpt.dotted_name}'
+
+
+            
 
 class ProsilicaCamBase(ProsilicaDetector):
     wait_for_plugins = Cpt(EpicsSignal, "WaitForPlugins", string=True, kind="hinted")
@@ -38,7 +64,7 @@ class ProsilicaCamBase(ProsilicaDetector):
     roi2 = Cpt(ROIPlugin, "ROI2:")
     roi3 = Cpt(ROIPlugin, "ROI3:")
     roi4 = Cpt(ROIPlugin, "ROI4:")
-    roistat1 = Cpt(ROIStatPlugin_V35, "ROIStat1:")
+    roistat1 = Cpt(FullROIStats, "ROIStat1:")
     _default_plugin_graph: Optional[dict[PluginBase, CamBase | PluginBase]] = None
 
     def __init__(self, *args, **kwargs):
@@ -64,7 +90,7 @@ class ProsilicaCamBase(ProsilicaDetector):
         return super().stage()
 
 
-class StandardProsilicaCam(ProsilicaCamBase):
+class StandardProsilicaCam(SingleTrigger, ProsilicaCamBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._default_plugin_graph = {
@@ -119,6 +145,24 @@ class StandardScreen(Device):
             )
         else:
             raise ValueError(f"Invalid position '{new_position}'. Use 'in' or 'out'.")
+
+
+def set_roiN_kinds(cam):
+    cam.roistat1.rois.kind = 'normal'
+    for roi_name in cam.roistat1.rois.component_names:
+        roi = getattr(cam.roistat1.rois, roi_name)
+        roi.kind = 'normal'
+        for k in ('bgd_width', 'name_', 'use', 'size', 'min_'):
+            getattr(roi, k).kind = 'config'
+        for k in ('max_value', 'min_value', 'mean_value', 'net'):
+            getattr(roi, k).kind = 'normal'
+        for k in ('total',):
+            getattr(roi, k).kind = 'hinted'
+        for k in ('reset',):
+            getattr(roi, k).kind = 'omitted'
+        for k in roi.component_names:
+            if k.startswith('ts'):
+                getattr(roi, k).kind = 'omitted'
 
 
 cam_A1 = StandardProsilicaCam("XF:09IDA-BI{DM:1-Cam:1}", name="cam_A1")
