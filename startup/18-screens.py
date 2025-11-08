@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from typing import Optional
 
+import numpy as np
 from ophyd import (
     CamBase,
 )
 from ophyd import Component as Cpt
 from ophyd import (
+    DerivedSignal,
     EpicsMotor,
     EpicsSignal,
     ImagePlugin,
@@ -84,25 +86,39 @@ class StandardProsilicaCam(ProsilicaCamBase):
         return super().stage()
 
 
-class StandardScreen(EpicsMotor):
+class ScreenState(DerivedSignal):
     def __init__(self, *args, in_position=0.0, out_position=25.0, **kwargs):
         super().__init__(*args, **kwargs)
-        self._in_position = in_position
-        self._out_position = out_position
+        self.in_position = in_position
+        self.out_position = out_position
 
-    def in_position(self, value):
-        self._in_position = value
+    def forward(self, value):
+        raise NotImplementedError("Forward method is not implemented.")
 
-    def out_position(self, value):
-        self._out_position = value
+    def inverse(self, value):
+        if np.isclose(value, self.in_position, atol=1):
+            return "in"
+        elif np.isclose(value, self.out_position, atol=1):
+            return "out"
+        else:
+            return "invalid"
 
-    def insert(self):
-        """Move screen into the beam"""
-        return self.set(self._in_position)
 
-    def remove(self):
-        """Move screen out of the beam"""
-        return self.set(self._out_position)
+class StandardScreen(Device):
+    mtr = Cpt(EpicsMotor, "")
+    state = Cpt(ScreenState, "mtr.user_readback", in_position=0.0, out_position=25.0)
+
+    def set(self, new_position, *, timeout=None, moved_cb=None, wait=None):
+        if new_position == "in":
+            return self.mtr.set(
+                self.state.in_position, timeout=timeout, moved_cb=moved_cb, wait=wait
+            )
+        elif new_position == "out":
+            return self.mtr.set(
+                self.state.out_position, timeout=timeout, moved_cb=moved_cb, wait=wait
+            )
+        else:
+            raise ValueError(f"Invalid position '{new_position}'. Use 'in' or 'out'.")
 
 
 cam_A1 = StandardProsilicaCam("XF:09IDA-BI{DM:1-Cam:1}", name="cam_A1")

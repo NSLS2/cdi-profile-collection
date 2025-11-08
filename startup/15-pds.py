@@ -74,5 +74,30 @@ class DCMBase(Device):
     v = Cpt(EpicsMotor, "Mono:HDCM-Ax:TY}Mtr")
 
 
+class EpicsMotorRO(EpicsMotor):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def move(self, *args, **kwargs):  # noqa: ARG002
+        msg = f"{self.name} is read-only and cannot be moved."
+        raise PermissionError(msg)
+
+    def stop(self, *args, **kwargs):  # noqa: ARG002
+        msg = f"{self.name} is read-only and cannot be stopped manually."
+        raise PermissionError(msg)
+
+    def set(self, *args, **kwargs):  # noqa: ARG002
+        msg = f"{self.name} is read-only and cannot be set."
+        raise PermissionError(msg)
+
+    def set_position(self, *args, **kwargs):  # noqa: ARG002
+        msg = f"{self.name} is read-only and its position cannot be set."
+        raise PermissionError(msg)
+
+    def _readonly_put(self, *args, **kwargs):  # noqa: ARG002
+        msg = f"{self.name} is read-only and cannot write PVs."
+        raise PermissionError(msg)
+
+
 dcm_base = DCMBase(prefix="XF:09IDA-OP:1{", name="dcm_base", labels=["motors", "dcm"])
 energy = Energy(prefix="XF:09IDA-OP:1{", name="energy", labels=["dcm"])
