@@ -9,26 +9,29 @@ from ophyd import (
 from ophyd import Component as Cpt
 from ophyd import (
     DerivedSignal,
+    Device,
     EpicsMotor,
     EpicsSignal,
     ImagePlugin,
     ProsilicaDetector,
     ProsilicaDetectorCam,
     ROIPlugin,
-    Device
 )
-from ophyd.device import DynamicDeviceComponent
 from ophyd.areadetector.plugins import (
     PluginBase,
+    ROIStatNPlugin_V25,
     ROIStatPlugin_V35,
     StatsPlugin,
     TransformPlugin,
-    ROIStatNPlugin_V25
 )
 from ophyd.areadetector.trigger_mixins import SingleTrigger
+from ophyd.device import DynamicDeviceComponent
+
 
 class FullROIStats(ROIStatPlugin_V35):
-    rois = DynamicDeviceComponent({f'roi{j}': (ROIStatNPlugin_V25, f'{j}:', {}) for j in range(1, 9)})
+    rois = DynamicDeviceComponent(
+        {f"roi{j}": (ROIStatNPlugin_V25, f"{j}:", {}) for j in range(1, 9)}
+    )
 
     def set_from_epics(self):
         root = self
@@ -38,18 +41,16 @@ class FullROIStats(ROIStatPlugin_V35):
         for k in self.rois.component_names:
             roi = getattr(self.rois, k)
             in_use = roi.use.get()
-            if in_use == 'Yes':
-                roi.kind = 'normal'
+            if in_use == "Yes":
+                roi.kind = "normal"
             else:
-                roi.kind = 'omitted'
+                roi.kind = "omitted"
                 continue
             epics_name = roi.name_.get()
-            roi.name = f'{root.name}_{epics_name}'
+            roi.name = f"{root.name}_{epics_name}"
             for cpt in roi.walk_signals():
-                cpt.item.name = f'{root.name}_{epics_name}_{cpt.dotted_name}'
+                cpt.item.name = f"{root.name}_{epics_name}_{cpt.dotted_name}"
 
-
-            
 
 class ProsilicaCamBase(ProsilicaDetector):
     wait_for_plugins = Cpt(EpicsSignal, "WaitForPlugins", string=True, kind="hinted")
@@ -133,9 +134,21 @@ class ScreenState(DerivedSignal):
 
 class StandardScreen(Device):
     mtr = Cpt(EpicsMotor, "")
-    state = Cpt(ScreenState, derived_from="mtr.user_readback", in_position=0.0, out_position=25.0)
+    state = Cpt(
+        ScreenState,
+        derived_from="mtr.user_readback",
+        in_position=0.0,
+        out_position=25.0,
+    )
 
-    def set(self, new_position, *, timeout:float|None=None, moved_cb=None, wait:bool|None=None):
+    def set(
+        self,
+        new_position,
+        *,
+        timeout: float | None = None,
+        moved_cb=None,
+        wait: bool | None = None,
+    ):
         if new_position == "in":
             return self.mtr.set(
                 self.state.in_position, timeout=timeout, moved_cb=moved_cb, wait=wait
@@ -149,27 +162,29 @@ class StandardScreen(Device):
 
 
 def set_roiN_kinds(cam):
-    cam.roistat1.rois.kind = 'normal'
+    cam.roistat1.rois.kind = "normal"
     for roi_name in cam.roistat1.rois.component_names:
         roi = getattr(cam.roistat1.rois, roi_name)
-        roi.kind = 'normal'
-        for k in ('bgd_width', 'name_', 'use', 'size', 'min_'):
-            getattr(roi, k).kind = 'config'
-        for k in ('max_value', 'min_value', 'mean_value', 'net'):
-            getattr(roi, k).kind = 'normal'
-        for k in ('total',):
-            getattr(roi, k).kind = 'hinted'
-        for k in ('reset',):
-            getattr(roi, k).kind = 'omitted'
+        roi.kind = "normal"
+        for k in ("bgd_width", "name_", "use", "size", "min_"):
+            getattr(roi, k).kind = "config"
+        for k in ("max_value", "min_value", "mean_value", "net"):
+            getattr(roi, k).kind = "normal"
+        for k in ("total",):
+            getattr(roi, k).kind = "hinted"
+        for k in ("reset",):
+            getattr(roi, k).kind = "omitted"
         for k in roi.component_names:
-            if k.startswith('ts'):
-                getattr(roi, k).kind = 'omitted'
+            if k.startswith("ts"):
+                getattr(roi, k).kind = "omitted"
     cam.roistat1.set_from_epics()
     return cam
 
 
 cam_A1 = set_roiN_kinds(StandardProsilicaCam("XF:09IDA-BI{DM:1-Cam:1}", name="cam_A1"))
-cam_A2 = set_roiN_kinds(StandardProsilicaCam("XF:09IDA-BI{WBStop-Cam:2}", name="cam_A2"))
+cam_A2 = set_roiN_kinds(
+    StandardProsilicaCam("XF:09IDA-BI{WBStop-Cam:2}", name="cam_A2")
+)
 cam_A3 = set_roiN_kinds(StandardProsilicaCam("XF:09IDA-BI{VPM-Cam:3}", name="cam_A3"))
 cam_A4 = set_roiN_kinds(StandardProsilicaCam("XF:09IDA-BI{HPM-Cam:4}", name="cam_A4"))
 cam_A5 = set_roiN_kinds(StandardProsilicaCam("XF:09IDA-BI{DM:2-Cam:5}", name="cam_A5"))
@@ -180,5 +195,3 @@ dm_fs = StandardScreen("XF:09IDA-OP:1{FS:DM2-Ax:Y}Mtr", name="screen_dm")
 
 kbvh_fs = StandardScreen("XF:09IDC-OP:1{Mir:KBh-Ax:FS}Mtr", name="screen_kbh")
 kbvv_fs = StandardScreen("XF:09IDC-OP:1{Mir:KBv-Ax:FS}Mtr", name="screen_kbv")
-
-

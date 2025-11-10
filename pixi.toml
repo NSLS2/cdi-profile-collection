@@ -1,7 +1,7 @@
 [project]
 channels = ["conda-forge"]
 name = "cdi-profile-collection"
-platforms = ["linux-64"]
+platforms = ["linux-64", "osx-64", "osx-arm64"]
 version = "2025.3.0"
 
 [system-requirements]
@@ -23,11 +23,14 @@ tiled-client = "==0.1.0b39"
 colorlog = ">=6.9.0,<7"
 pydantic-numpy = "*"
 hdf5-external-filter-plugins = ">=0.1.0,<0.2"
-blosc-hdf5-plugin = ">=1.0.1,<2"
 databroker = "==2.0.0b68"
 p4p = ">=4.2.0,<5"
-epicscorelibs = ">=7.0.7.99.1.1,<8"
 pip = ">=25.2,<26"
+
+# Linux-only dependencies (EPICS and HDF5 plugins may not be available on macOS)
+[feature.profile.target.linux-64.dependencies]
+blosc-hdf5-plugin = ">=1.0.1,<2"
+epicscorelibs = ">=7.0.7.99.1.1,<8"
 
 [feature.profile.pypi-dependencies]
 ophyd-async = { version = ">0.10.0", extras = ["ca", "pva"] }
@@ -58,6 +61,25 @@ numpy = ">2"
 start = "unset SESSION_MANAGER && MPLBACKEND=qtagg ipython --profile-dir=."
 pvs = "ipython --profile-dir=. -c 'get_pv_types(); exit()'"
 
+[feature.dev.dependencies]
+pre-commit = "*"
+ruff = "*"
+black = "*"
+isort = "*"
+prettier = "*"
+nbstripout = "*"
+
+[feature.dev.tasks]
+pre-commit-install = "pre-commit install"
+pre-commit-run = "pre-commit run --all-files"
+pre-commit-update = "pre-commit autoupdate"
+lint = "ruff check ."
+format = "ruff format ."
+lint-fix = "ruff check --fix ."
+black-format = "black ."
+isort-fix = "isort ."
+
 [environments]
 terminal = {features=["profile", "terminal"], solve-group="profile"}
 qs = {features=["profile", "qs"], solve-group="profile"}
+dev = {features=["profile", "terminal", "dev"], solve-group="profile"}

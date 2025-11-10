@@ -35,7 +35,9 @@ jobs:
           extra_args: --hook-stage manual --all-files
 
   testing_beamline_profiles:
-    name: ${{ matrix.repos.beamline-acronym }}-${{ matrix.zenodo.conda-version }}-py${{ matrix.zenodo.python }}
+    name:
+      ${{ matrix.repos.beamline-acronym }}-${{ matrix.zenodo.conda-version
+      }}-py${{ matrix.zenodo.python }}
     needs: pre-commit
     strategy:
       fail-fast: false
