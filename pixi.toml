@@ -35,7 +35,7 @@ epicscorelibs = ">=7.0.7.99.1.1,<8"
 [feature.profile.pypi-dependencies]
 ophyd-async = { version = ">0.10.0", extras = ["ca", "pva"] }
 # TODO get this onto conda-forge
-cditools = { git = "https://github.com/nsls2/cditools", rev="main" }
+cditools = { git = "https://github.com/jennmald/cditools", rev="sprint2" }
 
 
 [feature.qs.dependencies]
@@ -82,4 +82,4 @@ isort-fix = "isort ."
 [environments]
 terminal = {features=["profile", "terminal"], solve-group="profile"}
 qs = {features=["profile", "qs"], solve-group="profile"}
-dev = {features=["profile", "terminal", "dev"], solve-group="profile"}
+dev = {features=["dev"], no-default-feature = true}
