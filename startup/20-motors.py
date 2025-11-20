@@ -1,8 +1,6 @@
 from cditools.motors import (
     BCU,
     DM1,
-    DCMBase,
-    Energy,
     DM2,
     DM3,
     DM4,
@@ -11,6 +9,8 @@ from cditools.motors import (
     HPM,
     KB,
     VPM,
+    DCMBase,
+    Energy,
 )
 
 dm1 = DM1(prefix="XF:09IDA-OP:1{", name="dm1", labels=["motors"])
