@@ -1,5 +1,7 @@
+from ophyd.device import Component as Cpt
+from ophyd.device import Device
+from ophyd.device import FormattedComponent as FCpt
 from ophyd.pv_positioner import PVPositioner
-from ophyd.device import Component as Cpt, Device, FormattedComponent as FCpt
 from ophyd.signal import EpicsSignal, EpicsSignalRO
 
 
