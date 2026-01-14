@@ -1,3 +1,7 @@
+from pprint import pformat
+
+# Motors are loaded into the IPython namespace by startup scripts
+# ruff: noqa: F821
 motors = [
     dm1,
     vpm,
@@ -11,7 +15,6 @@ motors = [
     gon,
     bcu,
 ]
-from pprint import pformat
 
 for motor in motors:
     motor.wait_for_connection()
