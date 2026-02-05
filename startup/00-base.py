@@ -9,11 +9,6 @@ EpicsSignalBase.set_defaults(timeout=10, connection_timeout=10)
 
 print("LOADING 00")
 
-### Redis
-with open("/etc/bluesky/redis.secret", "r") as f:
-    redis_secret = f.read().strip()
-    os.environ["REDIS_PASSWORD"] = redis_secret
-
 ### Configure Base
 nslsii.configure_base(
     get_ipython().user_ns,  # noqa: F821
