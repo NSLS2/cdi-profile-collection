@@ -16,7 +16,7 @@ cam_C8 = set_roiN_kinds(
 )
 cam_C9 = set_roiN_kinds(StandardProsilicaCam("XF:09IDC-BI{BCU-Cam:9}", name="cam_C9"))
 cam_C10 = set_roiN_kinds(
-    StandardProsilicaCam("XF:09IDC-BI{BCU-Cam:10}", name="cam_C10")
+    StandardProsilicaCam("XF:09IDC-BI{SMPL-Cam:10}", name="cam_C10")
 )
 
 vpm_fs = StandardScreen("XF:09IDA-OP:1{FS:VPM-Ax:Y}Mtr", name="screen_vpm")
