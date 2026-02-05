@@ -11,7 +11,7 @@ print("LOADING 00")
 
 nslsii.configure_base(
     get_ipython().user_ns,  # noqa: F821
-    publish_documents_with_kafka="cdi",
+    publish_documents_with_kafka=False,
 )
 
 tiled_writing_client = from_uri(
