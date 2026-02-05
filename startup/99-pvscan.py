@@ -1,5 +1,3 @@
-print(f"Loading file {__file__!r} ...")
-
 import json
 from enum import Enum
 from typing import Any, Dict, Optional
