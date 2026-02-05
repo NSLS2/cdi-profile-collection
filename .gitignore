@@ -169,3 +169,6 @@ history*.sqlite
 
 # VSCode
 .vscode/
+
+# pv output
+pv_types.json
