@@ -15,7 +15,7 @@ nslsii.configure_base(
     publish_documents_with_kafka="cdi",
     redis_url="xf09id1-cdi-redis1.nsls2.bnl.gov",
     redis_port=6380,
-    redis_ssl=True
+    redis_ssl=True,
 )
 
 ### Tiled
