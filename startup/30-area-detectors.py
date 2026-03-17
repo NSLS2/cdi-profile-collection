@@ -1,7 +1,11 @@
 from pathlib import PosixPath
 
 from cditools.eiger_async import EigerDetector
+from cditools.merlin import CDIMerlinDetector
 from ophyd_async.core import UUIDFilenameProvider, YMDPathProvider, init_devices
+
+md = RE.md  # noqa: F821
+merlin = CDIMerlinDetector("XF:09ID1-ES{Det:Merlin1}", md, name="merlin")
 
 filename_provider = UUIDFilenameProvider()
 path_provider = YMDPathProvider(filename_provider, PosixPath("/tmp"))
