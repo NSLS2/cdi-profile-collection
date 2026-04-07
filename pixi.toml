@@ -7,6 +7,9 @@ version = "2025.3.0"
 [system-requirements]
 libc = "2.17"
 
+[activation.env]
+OPHYD_ASYNC_PRESERVE_DETECTOR_STATE = "YES"
+
 [feature.profile.dependencies]
 bluesky-base = ">=1.14.4"
 bluesky-queueserver = "*"
@@ -34,7 +37,7 @@ blosc-hdf5-plugin = ">=1.0.1,<2"
 epicscorelibs = ">=7.0.7.99.1.1,<8"
 
 [feature.profile.pypi-dependencies]
-ophyd-async = { version = ">0.10.0", extras = ["ca", "pva"] }
+ophyd-async = { version = ">=0.17.0a2", extras = ["ca", "pva"] }
 # TODO get this onto conda-forge
 cditools = { git = "https://github.com/nsls2/cditools", rev="main" }
 pvxslibs = ">=1.3.2, <2"
