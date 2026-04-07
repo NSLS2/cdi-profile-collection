@@ -1,3 +1,5 @@
+import numpy as np
+
 from cditools.eiger_async import (
     EigerDriverIO,
     Eiger2DriverIO,
@@ -37,6 +39,7 @@ from ophyd_async.epics.adcore import (
     AreaDetector,
     NDPluginBaseIO,
     trigger_info_from_num_images,
+    StreamResourceInfo,
 )
 from collections.abc import AsyncIterator, AsyncGenerator, Iterator
 from urllib.parse import urlunparse
@@ -216,8 +219,39 @@ class EigerDataLogic(DetectorDataLogic):
                 "Setting fw_nimgs_per_file to %d to force writing to a single HDF5 file",
                 self._min_num_images_per_file,
             )
+        driver = self.fileio
 
-        return StreamResourceDataProvider()
+        shape, datatype = await asyncio.gather(
+            asyncio.gather(
+                *[sig.get_value() for sig in [driver.array_size_y, driver.array_size_x]]
+            ),
+            # TODO make sure this exists
+            driver.data_type_signal.get_value(),
+        )
+        # Remove entries in shape that are zero
+        shape = [x for x in shape if x > 0]
+
+        mfp = await self._master_file_path
+        # TODO sort out how to get from parent
+        name = "eiger"
+        exposures_per_event = 1
+        return StreamResourceDataProvider(
+            uri=f'file:///{mfp}',
+            resource=[
+                StreamResourceInfo(
+                    data_key=f"{name}_image",
+                    shape=(exposures_per_event, *shape),
+                    # TODO sort out how to set this and mirror here
+                    chunk_shape=(1, *shape),
+                    dtype_numpy=np.dtype(datatype.value.lower()).str,
+                    parameters={
+                        "dataset": f"entry/data/data_{1:06d}",
+                    },
+                    # TODO this is not right, should be a PV
+                    source="ADEiger FileWriter",
+                )
+            ],
+        )
 
     @property
     async def _master_file_path(self) -> Path | None:
@@ -232,34 +266,6 @@ class EigerDataLogic(DetectorDataLogic):
             self._file_info.directory_path
             / f"{self._file_info.filename}_{sequence_id}_master.h5"
         )
-
-    async def collect_stream_docs(
-        self, name: str, indices_written: int
-    ) -> AsyncIterator[StreamAsset]:
-        """Generate stream documents for the written HDF5 files."""
-        if indices_written:
-            master_file_path = await self._master_file_path
-            if master_file_path is None:
-                msg = f"Master file path is not set for {name}: {self._file_info}"
-                raise ValueError(msg)
-
-            # Eiger generates a new master file for each trigger
-            # so we need to create a new composer with a new
-            # master file path
-            composer = EigerDocumentComposer(
-                master_file_path,
-                self._datasets,
-                last_emitted_index=indices_written - 1,
-            )
-
-            # For later validation
-            self._master_file_path_cache.append(master_file_path)
-
-            for doc in composer.stream_resources():
-                yield "stream_resource", doc
-
-            for doc in composer.stream_data(indices_written):
-                yield "stream_datum", doc
 
     async def observe_indices_written(
         self, timeout: float
