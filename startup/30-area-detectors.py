@@ -16,7 +16,6 @@ from ophyd_async.core import init_devices
 from pathlib import Path
 from typing import Sequence
 from event_model import (
-    DataKey,
     StreamRange,
     ComposeStreamResource,
     ComposeStreamResourceBundle,
@@ -43,9 +42,6 @@ from collections.abc import AsyncIterator, AsyncGenerator, Iterator
 from urllib.parse import urlunparse
 
 pp = NSLS2PathProvider(RE.md)  # noqa: F821
-
-
-
 
 
 class EigerDocumentComposer:
@@ -159,6 +155,7 @@ class EigerController(DetectorTriggerLogic):
     async def default_trigger_info(self):
         return await trigger_info_from_num_images(self.driver)
 
+
 class EigerDataLogic(DetectorDataLogic):
     """Eiger-specific file writer using the built-in FileWriter interface."""
 
@@ -185,7 +182,7 @@ class EigerDataLogic(DetectorDataLogic):
     async def prepare_unbounded(self, datakey_name: str) -> StreamableDataProvider:
         """Provider can work for an unbounded number of collections."""
         # Get file path info from path provider
-        self._file_info = self._path_provider(device_name='eiger2-1')
+        self._file_info = self._path_provider(device_name="eiger2-1")
         self._master_file_path_cache.clear()
 
         # Set the name pattern with $id replacement similar to original
@@ -220,9 +217,7 @@ class EigerDataLogic(DetectorDataLogic):
                 self._min_num_images_per_file,
             )
 
-        return StreamResourceDataProvider(
-
-        )
+        return StreamResourceDataProvider()
 
     @property
     async def _master_file_path(self) -> Path | None:
@@ -314,7 +309,6 @@ class EigerDetector(AreaDetector):
 
         super().__init__(
             prefix=prefix,
-
             driver=driver,
             trigger_logic=controller,
             writer_type=None,
