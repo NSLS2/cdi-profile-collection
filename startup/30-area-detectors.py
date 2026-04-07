@@ -25,7 +25,6 @@ from event_model import (
     StreamDatum,
 )
 import asyncio
-from bluesky.protocols import StreamAsset
 from ophyd_async.core import (
     DetectorTriggerLogic,
     DetectorDataLogic,
@@ -41,7 +40,7 @@ from ophyd_async.epics.adcore import (
     trigger_info_from_num_images,
     StreamResourceInfo,
 )
-from collections.abc import AsyncIterator, AsyncGenerator, Iterator
+from collections.abc import AsyncGenerator, Iterator
 from urllib.parse import urlunparse
 
 pp = NSLS2PathProvider(RE.md)  # noqa: F821
@@ -236,7 +235,7 @@ class EigerDataLogic(DetectorDataLogic):
         name = "eiger"
         exposures_per_event = 1
         return StreamResourceDataProvider(
-            uri=f'file:///{mfp}',
+            uri=f"file:///{mfp}",
             resource=[
                 StreamResourceInfo(
                     data_key=f"{name}_image",
