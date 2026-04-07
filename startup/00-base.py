@@ -29,8 +29,6 @@ c = tiled_reading_client = from_uri(
     include_data_sources=True,
 )
 
-RE.md["tiled_access_tags"] = ["cdi_beamline"]  # noqa: F821
-
 tw = TiledWriter(client=tiled_writing_client)
 
 RE.subscribe(tw)  # noqa: F821

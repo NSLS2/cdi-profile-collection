@@ -1,5 +1,27 @@
 from cditools.screens import StandardProsilicaCam, StandardScreen, set_roiN_kinds
 
+try:
+    from cditools.screens import setup_centroids
+except ImportError:
+    from ophyd.areadetector.plugins import StatsPlugin
+
+    def setup_centroids(stats: StatsPlugin, hinted: str | tuple[str] = ("x",)):
+        """
+        Docstring for setup_centroids
+
+        stats : StatsPlugin
+            The StatsPlugin instance for which to set up centroids.
+        hinted : str or tuple of str, optional
+            The attributes of the StatsPlugin to set as 'hinted'. Default is ('x',).
+        """
+        stats.kind = "normal"
+        stats.centroid.kind = "normal"
+        if isinstance(hinted, str):
+            hinted = (hinted,)
+        for attr in hinted:
+            getattr(stats.centroid, attr).kind = "hinted"
+
+
 cam_A1 = set_roiN_kinds(StandardProsilicaCam("XF:09IDA-BI{DM:1-Cam:1}", name="cam_A1"))
 cam_A2 = set_roiN_kinds(
     StandardProsilicaCam("XF:09IDA-BI{WBStop-Cam:2}", name="cam_A2")
@@ -8,6 +30,7 @@ cam_A3 = set_roiN_kinds(StandardProsilicaCam("XF:09IDA-BI{VPM-Cam:3}", name="cam
 cam_A4 = set_roiN_kinds(StandardProsilicaCam("XF:09IDA-BI{HPM-Cam:4}", name="cam_A4"))
 cam_A5 = set_roiN_kinds(StandardProsilicaCam("XF:09IDA-BI{DM:2-Cam:5}", name="cam_A5"))
 cam_B6 = set_roiN_kinds(StandardProsilicaCam("XF:09IDB-BI{DM:3-Cam:6}", name="cam_B6"))
+setup_centroids(cam_B6.stats1)
 cam_C7 = set_roiN_kinds(
     StandardProsilicaCam("XF:09IDC-BI{FS:KBv-Cam:7}", name="cam_C7")
 )
