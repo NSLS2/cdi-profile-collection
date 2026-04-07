@@ -1,21 +1,20 @@
-# from cditools.eiger_async import (
-#     EigerDetector,
-#     EigerDriverIO,
-#     EigerTriggerMode,
-#     logger,
-#     EigerDataSource,
-#     EigerHDF5Format,
-# )
+from cditools.eiger_async import (
+    EigerDriverIO,
+    Eiger2DriverIO,
+    EigerTriggerMode,
+    EigerDataSource,
+    EigerHDF5Format,
+    logger,
+)
 from ophyd_async.core import (
     SignalDatatypeT,
     StreamResourceDataProvider,
-    StrictEnum,
     observe_value,
 )
 from nslsii.ophyd_async.providers import NSLS2PathProvider
 from ophyd_async.core import init_devices
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Sequence
 from event_model import (
     DataKey,
     StreamRange,
@@ -33,246 +32,20 @@ from ophyd_async.core import (
     PathInfo,
     StreamableDataProvider,
     SignalR,
-    SignalRW,
-    SubsetEnum,
 )
 from ophyd_async.epics.adcore import (
     ADImageMode,
     AreaDetector,
     NDPluginBaseIO,
-    NDFileIO,
-    ADBaseIO,
     trigger_info_from_num_images,
 )
 from collections.abc import AsyncIterator, AsyncGenerator, Iterator
-from ophyd_async.epics.core import PvSuffix
-from typing import Annotated as A
 from urllib.parse import urlunparse
-from logging import getLogger
 
 pp = NSLS2PathProvider(RE.md)  # noqa: F821
-logger = getLogger(__name__)
 
 
-class EigerTriggerMode(SubsetEnum):
-    """Trigger modes for the Eiger detector.
 
-    See https://areadetector.github.io/areaDetector/ADEiger/eiger.html#implementation-of-standard-driver-parameters
-    """
-
-    INTERNAL_SERIES = "Internal Series"
-    INTERNAL_ENABLE = "Internal Enable"
-    EXTERNAL_SERIES = "External Series"
-    EXTERNAL_ENABLE = "External Enable"
-    CONTINUOUS = "Continuous"
-
-
-class EigerROIMode(StrictEnum):
-    """ROI modes for the Eiger detector.
-
-    See https://areadetector.github.io/areaDetector/ADEiger/eiger.html#readout-setup
-    """
-
-    DISABLED = "Disable"
-    _4M = "4M"
-
-
-# TODO - add extra options in eiger2 and revert to StrictEnum
-class EigerCompressionAlgo(SubsetEnum):
-    """Compression algorithms for the Eiger detector.
-
-    See https://areadetector.github.io/areaDetector/ADEiger/eiger.html#readout-setup
-    """
-
-    LZ4 = "LZ4"
-    BSLZ4 = "BS LZ4"
-
-
-class EigerDataSource(StrictEnum):
-    """Data sources for the Eiger detector.
-
-    See https://areadetector.github.io/areaDetector/ADEiger/eiger.html#readout-setup
-    """
-
-    NONE = "None"
-    FILE_WRITER = "FileWriter"
-    STREAM = "Stream"
-
-
-class EigerStreamHdrDetail(StrictEnum):
-    """Header detail levels for the Eiger detector.
-
-    See https://areadetector.github.io/areaDetector/ADEiger/eiger.html#stream-interface
-    """
-
-    ALL = "All"
-    BASIC = "Basic"
-    NONE = "None"
-
-
-class EigerHDF5Format(StrictEnum):
-    """HDF5 formats for the Eiger detector.
-
-    See https://areadetector.github.io/areaDetector/ADEiger/eiger.html#filewriter-interface
-    """
-
-    LEGACY = "Legacy"
-    V2024_2 = "v2024.2"
-
-
-class EigerStreamVersion(StrictEnum):
-    """Stream versions for the Eiger detector.
-
-    See https://areadetector.github.io/areaDetector/ADEiger/eiger.html#stream-interface
-    """
-
-    STREAM1 = "Stream1"
-    STREAM2 = "Stream2"
-
-
-class EigerDriverIO(ADBaseIO, NDFileIO):
-    """Defines the full specifics of the Eiger driver.
-
-    See https://areadetector.github.io/areaDetector/ADEiger/eiger.html#implementation-of-standard-driver-parameters
-    """
-
-    # Standard Driver Parameters
-    trigger_mode: A[SignalRW[EigerTriggerMode], PvSuffix.rbv("TriggerMode")]
-    num_images: A[SignalRW[int], PvSuffix.rbv("NumImages")]
-    num_images_counter: A[SignalR[int], PvSuffix("NumImagesCounter_RBV")]
-    num_exposures: A[SignalRW[int], PvSuffix.rbv("NumExposures")]
-    acquire_time: A[SignalRW[float], PvSuffix.rbv("AcquireTime")]
-    acquire_period: A[SignalRW[float], PvSuffix.rbv("AcquirePeriod")]
-    temperature_actual: A[SignalR[float], PvSuffix("TemperatureActual")]
-    max_size_x: A[SignalR[int], PvSuffix("MaxSizeX_RBV")]
-    max_size_y: A[SignalR[int], PvSuffix("MaxSizeY_RBV")]
-    array_size_x: A[SignalR[int], PvSuffix("ArraySizeX_RBV")]
-    array_size_y: A[SignalR[int], PvSuffix("ArraySizeY_RBV")]
-    manufacturer: A[SignalR[str], PvSuffix("Manufacturer_RBV")]
-    model: A[SignalR[str], PvSuffix("Model_RBV")]
-    serial_number: A[SignalR[str], PvSuffix("SerialNumber_RBV")]
-    firmware_version: A[SignalR[str], PvSuffix("FirmwareVersion_RBV")]
-    sdk_version: A[SignalR[str], PvSuffix("SDKVersion_RBV")]
-    driver_version: A[SignalR[str], PvSuffix("DriverVersion_RBV")]
-
-    # Detector Information
-    description: A[SignalR[str], PvSuffix("Description_RBV")]
-    x_pixel_size: A[SignalR[float], PvSuffix("XPixelSize_RBV")]
-    y_pixel_size: A[SignalR[float], PvSuffix("YPixelSize_RBV")]
-    sensor_material: A[SignalR[str], PvSuffix("SensorMaterial_RBV")]
-    sensor_thickness: A[SignalR[float], PvSuffix("SensorThickness_RBV")]
-    dead_time: A[SignalR[float], PvSuffix("DeadTime_RBV")]
-
-    # Detector Status
-    state: A[SignalR[str], PvSuffix("State_RBV")]
-    error: A[SignalR[str], PvSuffix("Error_RBV")]
-    temp0: A[SignalR[float], PvSuffix("Temp0_RBV")]
-    humid0: A[SignalR[float], PvSuffix("Humid0_RBV")]
-
-    # Acquisition Setup
-    photon_energy: A[SignalRW[float], PvSuffix.rbv("PhotonEnergy")]
-
-    # Trigger Setup
-    trigger: A[SignalRW[float], PvSuffix("Trigger")]
-    trigger_exposure: A[SignalRW[float], PvSuffix.rbv("TriggerExposure")]
-    num_triggers: A[SignalRW[int], PvSuffix.rbv("NumTriggers")]
-    manual_trigger: A[SignalRW[bool], PvSuffix.rbv("ManualTrigger")]
-
-    # Readout Setup
-    roi_mode: A[SignalRW[EigerROIMode], PvSuffix.rbv("ROIMode")]
-    flatfield_applied: A[SignalRW[bool], PvSuffix.rbv("FlatfieldApplied")]
-    countrate_corr_applied: A[SignalRW[bool], PvSuffix.rbv("CountrateCorrApplied")]
-    pixel_mask_applied: A[SignalRW[bool], PvSuffix.rbv("PixelMaskApplied")]
-    auto_summation: A[SignalRW[bool], PvSuffix.rbv("AutoSummation")]
-    compression_algo: A[SignalRW[EigerCompressionAlgo], PvSuffix.rbv("CompressionAlgo")]
-    data_source: A[SignalRW[EigerDataSource], PvSuffix.rbv("DataSource")]
-
-    # Acquisition Status
-    armed: A[SignalR[bool], PvSuffix("Armed")]
-    bit_depth_image: A[SignalR[int], PvSuffix("BitDepthImage_RBV")]
-    count_cutoff: A[SignalR[float], PvSuffix("CountCutoff_RBV")]
-
-    # Stream Interface
-    stream_enable: A[SignalRW[bool], PvSuffix.rbv("StreamEnable")]
-    stream_state: A[SignalR[str], PvSuffix("StreamState_RBV")]
-    stream_decompress: A[SignalRW[bool], PvSuffix.rbv("StreamDecompress")]
-    stream_hdr_detail: A[
-        SignalRW[EigerStreamHdrDetail], PvSuffix.rbv("StreamHdrDetail")
-    ]
-    stream_dropped: A[SignalR[int], PvSuffix("StreamDropped_RBV")]
-
-    # Monitor Interface
-    monitor_enable: A[SignalRW[bool], PvSuffix.rbv("MonitorEnable")]
-    monitor_state: A[SignalR[str], PvSuffix("MonitorState_RBV")]
-    monitor_timeout: A[SignalRW[float], PvSuffix.rbv("MonitorTimeout")]
-
-    # Acquisition Metadata
-    beam_x: A[SignalRW[float], PvSuffix.rbv("BeamX")]
-    beam_y: A[SignalRW[float], PvSuffix.rbv("BeamY")]
-    det_dist: A[SignalRW[float], PvSuffix.rbv("DetDist")]
-    wavelength: A[SignalRW[float], PvSuffix.rbv("Wavelength")]
-
-    # Detector Metadata
-    chi_start: A[SignalRW[float], PvSuffix.rbv("ChiStart")]
-    chi_incr: A[SignalRW[float], PvSuffix.rbv("ChiIncr")]
-    kappa_start: A[SignalRW[float], PvSuffix.rbv("KappaStart")]
-    kappa_incr: A[SignalRW[float], PvSuffix.rbv("KappaIncr")]
-    omega_start: A[SignalRW[float], PvSuffix.rbv("OmegaStart")]
-    omega_incr: A[SignalRW[float], PvSuffix.rbv("OmegaIncr")]
-    phi_start: A[SignalRW[float], PvSuffix.rbv("PhiStart")]
-    phi_incr: A[SignalRW[float], PvSuffix.rbv("PhiIncr")]
-    two_theta_start: A[SignalRW[float], PvSuffix.rbv("TwoThetaStart")]
-    two_theta_incr: A[SignalRW[float], PvSuffix.rbv("TwoThetaIncr")]
-
-    # Minimum change allowed
-    wavelength_eps: A[SignalRW[float], PvSuffix.rbv("WavelengthEps")]
-    energy_eps: A[SignalRW[float], PvSuffix.rbv("EnergyEps")]
-
-    # FileWriter Interface
-    fw_enable: A[SignalRW[bool], PvSuffix.rbv("FWEnable")]
-    fw_state: A[SignalR[str], PvSuffix("FWState_RBV")]
-    fw_compression: A[SignalRW[bool], PvSuffix.rbv("FWCompression")]
-    fw_name_pattern: A[SignalRW[str], PvSuffix.rbv("FWNamePattern")]
-    sequence_id: A[SignalR[int], PvSuffix("SequenceId")]
-    save_files: A[SignalRW[bool], PvSuffix.rbv("SaveFiles")]
-    file_owner: A[SignalRW[str], PvSuffix.rbv("FileOwner")]
-    file_owner_grp: A[SignalRW[str], PvSuffix.rbv("FileOwnerGrp")]
-    file_perms: A[SignalRW[float], PvSuffix.rbv("FilePerms")]
-    fw_free: A[SignalR[float], PvSuffix("FWFree_RBV")]
-    fw_auto_remove: A[SignalRW[bool], PvSuffix.rbv("FWAutoRemove")]
-    fw_nimgs_per_file: A[SignalRW[int], PvSuffix.rbv("FWNImagesPerFile")]
-
-
-class Eiger2DriverIO(EigerDriverIO):
-    """Eiger2 driver interface."""
-
-    # Detector Status
-    hv_reset_time: A[SignalRW[float], PvSuffix.rbv("HVResetTime")]
-    hv_reset: A[SignalRW[bool], PvSuffix("HVReset", "HVReset")]
-    hv_state: A[SignalR[str], PvSuffix("HVState_RBV")]
-
-    # Acquisition Setup
-    threshold: A[SignalRW[float], PvSuffix.rbv("Threshold")]
-    threshold1_enable: A[SignalRW[bool], PvSuffix.rbv("Threshold1Enable")]
-    threshold2: A[SignalRW[float], PvSuffix.rbv("Threshold2")]
-    threshold2_enable: A[SignalRW[bool], PvSuffix.rbv("Threshold2Enable")]
-    threshold_diff_enable: A[SignalRW[bool], PvSuffix.rbv("ThresholdDiffEnable")]
-    counting_mode: A[SignalRW[str], PvSuffix.rbv("CountingMode")]
-
-    # Trigger Setup
-    ext_gate_mode: A[SignalRW[str], PvSuffix.rbv("ExtGateMode")]
-    trigger_start_delay: A[SignalRW[float], PvSuffix.rbv("TriggerStartDelay")]
-
-    # Readout Setup
-    signed_data: A[SignalRW[bool], PvSuffix.rbv("SignedData")]
-
-    # Stream Interface
-    stream_version: A[SignalRW[EigerStreamVersion], PvSuffix.rbv("StreamVersion")]
-    stream_hdr_appendix: A[SignalRW[str], PvSuffix.rbv("StreamHdrAppendix")]
-    stream_img_appendix: A[SignalRW[str], PvSuffix.rbv("StreamImgAppendix")]
-
-    # FileWriter Interface
-    fw_hdf5_format: A[SignalRW[EigerHDF5Format], PvSuffix.rbv("FWHDF5Format")]
 
 
 class EigerDocumentComposer:
@@ -448,7 +221,7 @@ class EigerDataLogic(DetectorDataLogic):
             )
 
         return StreamResourceDataProvider(
-            
+
         )
 
     @property
