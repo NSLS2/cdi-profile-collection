@@ -244,11 +244,11 @@ class EigerDataLogic(DetectorDataLogic):
                     parameters={
                         "dataset": f"entry/data/data_{1:06d}",
                     },
-                    source=str(self.fileio.data_source.get_value()),
+                    source=str(await self.fileio.data_source.get_value()),
                 )
             ],
             mimetype="application/x-hdf5",
-            collections_written_signal=self.fileio.array_counter,
+            collections_written_signal= self.fileio.num_images_counter,
         )
 
     @property
