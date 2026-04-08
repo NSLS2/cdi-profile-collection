@@ -43,6 +43,8 @@ from ophyd_async.epics.adcore import (
 from collections.abc import AsyncGenerator, Iterator
 from urllib.parse import urlunparse
 
+print("LOADING 30")
+
 pp = NSLS2PathProvider(RE.md)  # noqa: F821
 
 

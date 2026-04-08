@@ -13,6 +13,8 @@ from cditools.motors import (
     Energy,
 )
 
+print("LOADING 20")
+
 dm1 = DM1(prefix="XF:09IDA-OP:1{", name="dm1", labels=["motors"])
 vpm = VPM(prefix="XF:09IDA-OP:1{", name="vpm", labels=["motors"])
 hpm = HPM(prefix="XF:09IDA-OP:1{", name="hpm", labels=["motors"])

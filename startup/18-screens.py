@@ -1,5 +1,7 @@
 from cditools.screens import StandardProsilicaCam, StandardScreen, set_roiN_kinds
 
+print("LOADING 18")
+
 try:
     from cditools.screens import setup_centroids
 except ImportError:
