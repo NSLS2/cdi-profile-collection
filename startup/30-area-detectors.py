@@ -38,7 +38,6 @@ from ophyd_async.epics.adcore import (
     AreaDetector,
     NDPluginBaseIO,
     trigger_info_from_num_images,
-    StreamResourceInfo,
 )
 from collections.abc import AsyncGenerator, Iterator
 from urllib.parse import urlunparse
