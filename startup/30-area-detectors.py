@@ -14,7 +14,7 @@ from ophyd_async.core import (
     observe_value,
 )
 from nslsii.ophyd_async.providers import NSLS2PathProvider
-from ophyd_async.core import init_devices
+from ophyd_async.core import init_devices, StreamResourceInfo
 from pathlib import Path
 from typing import Sequence
 from event_model import (
@@ -221,13 +221,10 @@ class EigerDataLogic(DetectorDataLogic):
             )
         driver = self.fileio
 
-        shape, datatype = await asyncio.gather(
-            asyncio.gather(
+        shape = await asyncio.gather(
                 *[sig.get_value() for sig in [driver.array_size_y, driver.array_size_x]]
-            ),
-            # TODO make sure this exists
-            driver.data_type_signal.get_value(),
-        )
+            )
+        datatype = "uint32"
         # Remove entries in shape that are zero
         shape = [x for x in shape if x > 0]
 
@@ -237,20 +234,21 @@ class EigerDataLogic(DetectorDataLogic):
         exposures_per_event = 1
         return StreamResourceDataProvider(
             uri=f"file:///{mfp}",
-            resource=[
+            resources=[
                 StreamResourceInfo(
                     data_key=f"{name}_image",
                     shape=(exposures_per_event, *shape),
                     # TODO sort out how to set this and mirror here
                     chunk_shape=(1, *shape),
-                    dtype_numpy=np.dtype(datatype.value.lower()).str,
+                    dtype_numpy=np.dtype(datatype.lower()).str,
                     parameters={
                         "dataset": f"entry/data/data_{1:06d}",
                     },
-                    # TODO this is not right, should be a PV
-                    source="ADEiger FileWriter",
+                    source=str(self.fileio.data_source.get_value()),
                 )
             ],
+            mimetype="application/x-hdf5",
+            collections_written_signal=self.fileio.array_counter,
         )
 
     @property
