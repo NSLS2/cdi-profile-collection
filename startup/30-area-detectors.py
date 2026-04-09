@@ -1,37 +1,55 @@
-import numpy as np
+import asyncio
+import functools
+import os
+from collections.abc import AsyncGenerator, AsyncIterator, Iterator, Sequence
+from pathlib import Path
+from typing import Annotated as A
+from urllib.parse import urlunparse
 
+import numpy as np
+from cditools.eiger_async import Eiger2DriverIO as _Eiger2DriverIO
 from cditools.eiger_async import (
     EigerDriverIO,
-    Eiger2DriverIO as _Eiger2DriverIO,
-    EigerTriggerMode,
     EigerHDF5Format,
+    EigerTriggerMode,
     logger,
 )
-from ophyd_async.core import (
-    SignalDatatypeT,
-    StreamResourceDataProvider,
-    TriggerInfo,
-    observe_value,
-)
-from nslsii.ophyd_async.providers import NSLS2PathProvider
-from ophyd_async.core import init_devices, StreamResourceInfo
-from pathlib import Path
-from typing import Sequence
 from event_model import (
-    StreamRange,
     ComposeStreamResource,
     ComposeStreamResourceBundle,
-    StreamResource,
     StreamDatum,
+    StreamRange,
+    StreamResource,
 )
-import asyncio
+from nslsii.ophyd_async.providers import NSLS2PathProvider
 from ophyd_async.core import (
-    DetectorTriggerLogic,
+    AsyncStatus,
+    DetectorArmLogic,
     DetectorDataLogic,
-    PathProvider,
+    DetectorTriggerLogic,
     PathInfo,
+    PathProvider,
+    SignalDatatypeT,
+    StreamResourceDataProvider,
+    StreamResourceInfo,
+    StrictEnum,
+    TriggerInfo,
+    init_devices,
+    observe_value,
+    set_and_wait_for_other_value,
+)
+from ophyd_async.core._data_providers import (
     StreamableDataProvider,
+)
+from ophyd_async.core._signal import (
     SignalR,
+    SignalRW,
+)
+from ophyd_async.core._status import WatchableAsyncStatus
+from ophyd_async.core._utils import (
+    DEFAULT_TIMEOUT,
+    WatcherUpdate,
+    error_if_none,
 )
 from ophyd_async.epics.adcore import (
     ADImageMode,
@@ -39,14 +57,8 @@ from ophyd_async.epics.adcore import (
     NDPluginBaseIO,
     trigger_info_from_num_images,
 )
-from collections.abc import AsyncGenerator, Iterator
-from urllib.parse import urlunparse
+from ophyd_async.epics.core import stop_busy_record
 from ophyd_async.epics.signal import PvSuffix
-from ophyd_async.core import (
-    SignalRW,
-    StrictEnum,
-)
-from typing import Annotated as A
 
 print("LOADING 30")
 
@@ -181,7 +193,6 @@ class EigerController(DetectorTriggerLogic):
         )
 
     async def default_trigger_info(self):
-
         return await trigger_info_from_num_images(self.driver)
 
 
@@ -233,7 +244,7 @@ class EigerDataLogic(DetectorDataLogic):
         )
         # await self.fileio.acquire.set(True)
 
-        acquire_status = await set_and_wait_for_other_value(
+        await set_and_wait_for_other_value(
             set_signal=self.fileio.acquire,
             set_value=True,
             match_signal=self.fileio.armed,
@@ -326,34 +337,6 @@ class EigerDataLogic(DetectorDataLogic):
         self._file_info = None
 
 
-from ophyd_async.core import (
-    AsyncStatus,
-    DetectorArmLogic,
-    set_and_wait_for_other_value,
-)
-from ophyd_async.epics.core import stop_busy_record
-
-
-import functools
-import os
-from collections.abc import AsyncIterator, Sequence
-
-
-from ophyd_async.core._data_providers import (
-    StreamableDataProvider,
-)
-from ophyd_async.core._signal import (
-    SignalR,
-    SignalRW,
-)
-from ophyd_async.core._status import AsyncStatus, WatchableAsyncStatus
-from ophyd_async.core._utils import (
-    DEFAULT_TIMEOUT,
-    WatcherUpdate,
-    error_if_none,
-)
-
-
 class EigerArmLogic(DetectorArmLogic):
     def __init__(
         self, driver: Eiger2DriverIO, driver_armed_signal: SignalR[bool] | None = None
@@ -366,7 +349,6 @@ class EigerArmLogic(DetectorArmLogic):
         self.acquire_status: AsyncStatus | None = None
 
     async def arm(self):
-
         ret = await self.driver.trigger.set(0)
 
         return ret
@@ -374,7 +356,6 @@ class EigerArmLogic(DetectorArmLogic):
     async def wait_for_idle(self): ...
 
     async def disarm(self):
-
         await stop_busy_record(self.driver.acquire)
 
         await asyncio.gather(
