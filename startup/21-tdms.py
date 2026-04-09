@@ -4,6 +4,8 @@ from ophyd.device import FormattedComponent as FCpt
 from ophyd.pv_positioner import PVPositioner
 from ophyd.signal import EpicsSignal, EpicsSignalRO
 
+print("LOADING 21")
+
 
 class TDMSAxis(PVPositioner):
     setpoint = Cpt(EpicsSignal, "MTR:VAL-SP")
