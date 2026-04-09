@@ -1,7 +1,7 @@
 import asyncio
 import functools
 import os
-from collections.abc import AsyncGenerator, AsyncIterator, Iterator, Sequence
+from collections.abc import AsyncGenerator, AsyncIterator, Sequence
 from pathlib import Path
 from typing import Annotated as A
 from urllib.parse import urlunparse
@@ -13,13 +13,6 @@ from cditools.eiger_async import (
     EigerHDF5Format,
     EigerTriggerMode,
     logger,
-)
-from event_model import (
-    ComposeStreamResource,
-    ComposeStreamResourceBundle,
-    StreamDatum,
-    StreamRange,
-    StreamResource,
 )
 from nslsii.ophyd_async.providers import NSLS2PathProvider
 from ophyd_async.core import (
@@ -82,56 +75,6 @@ class Eiger2DriverIO(_Eiger2DriverIO):
     stream_hdr_appendix: None
     stream_img_appendix: None
 
-
-class EigerDocumentComposer:
-    def __init__(
-        self,
-        full_file_name: Path,
-        datasets: list[StreamResourceDataProvider],
-        last_emitted_index: int = 0,
-        hostname: str = "localhost",
-    ) -> None:
-        self._last_emitted = last_emitted_index
-        self._hostname = hostname
-        uri = urlunparse(
-            (
-                "file",
-                self._hostname,
-                str(full_file_name.absolute()),
-                "",
-                "",
-                None,
-            )
-        )
-        bundler_composer = ComposeStreamResource()
-        self._bundles: list[ComposeStreamResourceBundle] = [
-            bundler_composer(
-                mimetype="application/x-hdf5",
-                uri=uri,
-                data_key=ds.datakey_name,
-                parameters={
-                    "dataset": ds.dataset,
-                    "chunk_shape": ds.chunk_shape,
-                },
-                uid=None,
-                validate=True,
-            )
-            for ds in datasets
-        ]
-
-    def stream_resources(self) -> Iterator[StreamResource]:
-        for bundle in self._bundles:
-            yield bundle.stream_resource_doc
-
-    def stream_data(self, indices_written: int) -> Iterator[StreamDatum]:
-        if indices_written > self._last_emitted:
-            indices: StreamRange = {
-                "start": self._last_emitted,
-                "stop": indices_written,
-            }
-            self._last_emitted = indices_written
-            for bundle in self._bundles:
-                yield bundle.compose_stream_datum(indices)
 
 
 class EigerController(DetectorTriggerLogic):
