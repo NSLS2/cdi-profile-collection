@@ -183,10 +183,10 @@ class EigerDataLogic(DetectorDataLogic):
             # Use array_counter to track the total number of images written
             self.fileio.array_counter.set(0),
             self.fileio.manual_trigger.set(True),
+            # TODO sort out how to get this from the plan
             self.fileio.num_triggers.set(5000),
         )
-        # await self.fileio.acquire.set(True)
-
+       
         await set_and_wait_for_other_value(
             set_signal=self.fileio.acquire,
             set_value=True,
@@ -196,7 +196,6 @@ class EigerDataLogic(DetectorDataLogic):
             timeout=DEFAULT_TIMEOUT,
         )
 
-        # await acquire_status
 
         if not await self.fileio.file_path_exists.get_value():
             msg = f"File path {self._file_info.directory_path} does not exist"
@@ -206,6 +205,7 @@ class EigerDataLogic(DetectorDataLogic):
             await self.fileio.fw_hdf5_format.set(EigerHDF5Format.LEGACY)
 
         # Force the number of images per file to a large number to simplify the logic
+        # TODO: allow multiple files
         num_images_per_file = await self.fileio.fw_nimgs_per_file.get_value()
         if num_images_per_file < self._min_num_images_per_file:
             await self.fileio.fw_nimgs_per_file.set(self._min_num_images_per_file)
@@ -227,6 +227,7 @@ class EigerDataLogic(DetectorDataLogic):
         name = "eiger"
         exposures_per_event = await self.fileio.num_images.get_value()
 
+        # TODO sort out how to tell tiled about the additional data files.
         return StreamResourceDataProvider(
             uri=urlunparse(("file", "localhost", str(mfp), "", "", None)),
             resources=[
@@ -240,7 +241,7 @@ class EigerDataLogic(DetectorDataLogic):
                         "dataset": f"entry/data/data_{1:06d}",
                     },
                     # TODO put in better value
-                    source="EIGER",
+                    source="EIGER2_FILE_WRITER",
                 )
             ],
             mimetype="application/x-hdf5",
@@ -279,7 +280,7 @@ class EigerDataLogic(DetectorDataLogic):
                 ...
         self._file_info = None
 
-
+# TODO sort out if ths is the right name of things
 class EigerArmLogic(DetectorArmLogic):
     def __init__(
         self, driver: Eiger2DriverIO, driver_armed_signal: SignalR[bool] | None = None
@@ -346,6 +347,7 @@ class EigerDetector(AreaDetector):
         # self.writer = None
         self.add_detector_logics(writer_logic)
 
+    # TODO remove this as it should be identical to upstream.
     @WatchableAsyncStatus.wrap
     async def trigger(self) -> AsyncIterator[WatcherUpdate[int]]:
         """Trigger a single exposure.
