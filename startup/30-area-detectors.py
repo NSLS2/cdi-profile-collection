@@ -2,15 +2,15 @@ import numpy as np
 
 from cditools.eiger_async import (
     EigerDriverIO,
-    Eiger2DriverIO,
+    Eiger2DriverIO as _Eiger2DriverIO,
     EigerTriggerMode,
-    EigerDataSource,
     EigerHDF5Format,
     logger,
 )
 from ophyd_async.core import (
     SignalDatatypeT,
     StreamResourceDataProvider,
+    TriggerInfo,
     observe_value,
 )
 from nslsii.ophyd_async.providers import NSLS2PathProvider
@@ -38,14 +38,37 @@ from ophyd_async.epics.adcore import (
     AreaDetector,
     NDPluginBaseIO,
     trigger_info_from_num_images,
-    ADArmLogic
 )
 from collections.abc import AsyncGenerator, Iterator
 from urllib.parse import urlunparse
+from ophyd_async.epics.signal import PvSuffix
+from ophyd_async.core import (
+    SignalRW,
+    StrictEnum,
+)
+from typing import Annotated as A
 
 print("LOADING 30")
 
 pp = NSLS2PathProvider(RE.md)  # noqa: F821
+
+
+class EigerStreamVersion(StrictEnum):
+    """Stream versions for the Eiger detector.
+
+    See https://areadetector.github.io/areaDetector/ADEiger/eiger.html#stream-interface
+    """
+
+    STREAM1 = "Stream"
+    STREAM2 = "Stream2"
+
+
+class Eiger2DriverIO(_Eiger2DriverIO):
+    stream_version: A[SignalRW[EigerStreamVersion], PvSuffix.rbv("StreamVersion")]
+    threshold: A[SignalRW[float], PvSuffix.rbv("ThresholdEnergy")]
+    threshold2: A[SignalRW[float], PvSuffix.rbv("Threshold2Energy")]
+    stream_hdr_appendix: None
+    stream_img_appendix: None
 
 
 class EigerDocumentComposer:
@@ -122,7 +145,8 @@ class EigerController(DetectorTriggerLogic):
     async def prepare_internal(self, num: int, livetime: float, deadtime: float):
         """Prepare the detector for acquisition."""
 
-        await self.driver.acquire_time.set(livetime)
+        if livetime > 0:
+            await self.driver.acquire_time.set(livetime)
 
         await self.driver.trigger_mode.set(EigerTriggerMode.INTERNAL_SERIES)
 
@@ -157,6 +181,7 @@ class EigerController(DetectorTriggerLogic):
         )
 
     async def default_trigger_info(self):
+
         return await trigger_info_from_num_images(self.driver)
 
 
@@ -203,7 +228,21 @@ class EigerDataLogic(DetectorDataLogic):
             self.fileio.num_capture.set(0),
             # Use array_counter to track the total number of images written
             self.fileio.array_counter.set(0),
+            self.fileio.manual_trigger.set(True),
+            self.fileio.num_triggers.set(5000),
         )
+        # await self.fileio.acquire.set(True)
+
+        acquire_status = await set_and_wait_for_other_value(
+            set_signal=self.fileio.acquire,
+            set_value=True,
+            match_signal=self.fileio.armed,
+            match_value=True,
+            wait_for_set_completion=False,
+            timeout=DEFAULT_TIMEOUT,
+        )
+
+        # await acquire_status
 
         if not await self.fileio.file_path_exists.get_value():
             msg = f"File path {self._file_info.directory_path} does not exist"
@@ -223,8 +262,8 @@ class EigerDataLogic(DetectorDataLogic):
         driver = self.fileio
 
         shape = await asyncio.gather(
-                *[sig.get_value() for sig in [driver.array_size_y, driver.array_size_x]]
-            )
+            *[sig.get_value() for sig in [driver.array_size_y, driver.array_size_x]]
+        )
         datatype = "uint32"
         # Remove entries in shape that are zero
         shape = [x for x in shape if x > 0]
@@ -233,8 +272,9 @@ class EigerDataLogic(DetectorDataLogic):
         # TODO sort out how to get from parent
         name = "eiger"
         exposures_per_event = await self.fileio.num_images.get_value()
+
         return StreamResourceDataProvider(
-            uri=urlunparse(("file", "localhost", str(mfp), "", "", None )),
+            uri=urlunparse(("file", "localhost", str(mfp), "", "", None)),
             resources=[
                 StreamResourceInfo(
                     data_key=f"{name}_image",
@@ -246,11 +286,11 @@ class EigerDataLogic(DetectorDataLogic):
                         "dataset": f"entry/data/data_{1:06d}",
                     },
                     # TODO put in better value
-                    source='EIGER',
+                    source="EIGER",
                 )
             ],
             mimetype="application/x-hdf5",
-            collections_written_signal= self.fileio.array_counter,
+            collections_written_signal=self.fileio.array_counter,
         )
 
     @property
@@ -282,9 +322,65 @@ class EigerDataLogic(DetectorDataLogic):
         # Check that the master files were written
         for master_file_path in self._master_file_path_cache:
             if not master_file_path.exists():
-                logger.warning("Master file was not written: %s", master_file_path)
-
+                ...
         self._file_info = None
+
+
+from ophyd_async.core import (
+    AsyncStatus,
+    DetectorArmLogic,
+    set_and_wait_for_other_value,
+)
+from ophyd_async.epics.core import stop_busy_record
+
+
+import functools
+import os
+from collections.abc import AsyncIterator, Sequence
+
+
+from ophyd_async.core._data_providers import (
+    StreamableDataProvider,
+)
+from ophyd_async.core._signal import (
+    SignalR,
+    SignalRW,
+)
+from ophyd_async.core._status import AsyncStatus, WatchableAsyncStatus
+from ophyd_async.core._utils import (
+    DEFAULT_TIMEOUT,
+    WatcherUpdate,
+    error_if_none,
+)
+
+
+class EigerArmLogic(DetectorArmLogic):
+    def __init__(
+        self, driver: Eiger2DriverIO, driver_armed_signal: SignalR[bool] | None = None
+    ):
+        self.driver = driver
+        if driver_armed_signal is not None:
+            self.driver_armed_signal = driver_armed_signal
+        else:
+            self.driver_armed_signal = driver.acquire
+        self.acquire_status: AsyncStatus | None = None
+
+    async def arm(self):
+
+        ret = await self.driver.trigger.set(0)
+
+        return ret
+
+    async def wait_for_idle(self): ...
+
+    async def disarm(self):
+
+        await stop_busy_record(self.driver.acquire)
+
+        await asyncio.gather(
+            self.driver.manual_trigger.set(False),
+            self.driver.num_triggers.set(1),
+        )
 
 
 class EigerDetector(AreaDetector):
@@ -299,7 +395,7 @@ class EigerDetector(AreaDetector):
         config_sigs: Sequence[SignalR[SignalDatatypeT]] = (),
         plugins: dict[str, NDPluginBaseIO] | None = None,
     ):
-        driver = EigerDriverIO(prefix + driver_suffix)
+        driver = Eiger2DriverIO(prefix + driver_suffix)
         controller = EigerController(driver)
         # if issubclass(writer_cls, EigerDataLogic):
         #     dataset_describer = ADBaseDatasetDescriber(driver)
@@ -312,7 +408,7 @@ class EigerDetector(AreaDetector):
         #     )
         # else:
         writer_logic = EigerDataLogic(fileio=driver, path_provider=path_provider)
-        arm_logic = ADArmLogic(driver)
+        arm_logic = EigerArmLogic(driver)
         super().__init__(
             prefix=prefix,
             driver=driver,
@@ -325,6 +421,77 @@ class EigerDetector(AreaDetector):
         )
         # self.writer = None
         self.add_detector_logics(writer_logic)
+
+    @WatchableAsyncStatus.wrap
+    async def trigger(self) -> AsyncIterator[WatcherUpdate[int]]:
+        """Trigger a single exposure.
+
+        If [`prepare()`](#StandardDetector.prepare) has not been called since
+        the last [`stage()`](#StandardDetector.stage), an implicit prepare is
+        performed. When [](#OPHYD_ASYNC_PRESERVE_DETECTOR_STATE) is `YES`
+        [](#DetectorTriggerLogic.default_trigger_info) is called to read current
+        hardware state; otherwise a bare [`TriggerInfo()`](#TriggerInfo) is
+        used.
+        """
+        if self._prepare_ctx is None:
+            # Opt-in: set OPHYD_ASYNC_PRESERVE_DETECTOR_STATE=YES to have
+            # trigger() read back current hardware state (e.g. num_images) via
+            # default_trigger_info() instead of always falling back to TriggerInfo().
+            # See ADR 0013 for rationale.
+            # TODO: flip default to YES and remove this guard in a future PR once
+            # downstream code has had time to implement default_trigger_info().
+            preserve_state = (
+                os.environ.get("OPHYD_ASYNC_PRESERVE_DETECTOR_STATE", "NO").upper()
+                == "YES"
+            )
+            if preserve_state and self._trigger_logic is not None:
+
+                def _logic_supported(base_class, method) -> bool:
+                    # If the function that is bound in a subclass is the same as the function
+                    # attached to the superclass, then the subclass has not overridden it, so
+                    # this method is not supported by the subclass.
+                    return method.__func__ is not getattr(base_class, method.__name__)
+
+                _trigger_logic_supported = functools.partial(
+                    _logic_supported, DetectorTriggerLogic
+                )
+                if not _trigger_logic_supported(
+                    self._trigger_logic.default_trigger_info
+                ):
+                    raise RuntimeError(
+                        f"OPHYD_ASYNC_PRESERVE_DETECTOR_STATE=YES is set but "
+                        f"'{self.name}' has no default_trigger_info() - implement "
+                        "default_trigger_info() on your DetectorTriggerLogic subclass "
+                        "or unset the environment variable."
+                    )
+                trigger_info = await self._trigger_logic.default_trigger_info()
+            else:
+                trigger_info = TriggerInfo()
+            await self.prepare(trigger_info)
+        else:
+            # Check the one that was provided is suitable for triggering
+            trigger_info = self._prepare_ctx.trigger_info
+            if trigger_info.number_of_events != 1:
+                msg = (
+                    "trigger() is not supported for multiple events, the detector was "
+                    f"prepared with number_of_events={trigger_info.number_of_events}."
+                )
+                raise ValueError(msg)
+            # Ensure the data provider is still usable
+            await self._update_prepare_context(trigger_info)
+        ctx = error_if_none(self._prepare_ctx, "Prepare should have been run")
+        # Arm the detector and wait for it to finish.
+        if self._arm_logic:
+            await self._arm_logic.arm()
+
+        async for update in self._wait_for_index(
+            data_providers=ctx.streamable_data_providers,
+            trigger_info=ctx.trigger_info,
+            initial_collections_written=ctx.collections_written,
+            collections_requested=1,
+            wait_for_idle=True,
+        ):
+            yield update
 
 
 with init_devices():
