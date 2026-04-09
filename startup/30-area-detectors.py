@@ -76,7 +76,6 @@ class Eiger2DriverIO(_Eiger2DriverIO):
     stream_img_appendix: None
 
 
-
 class EigerController(DetectorTriggerLogic):
     """Controller for Eiger detector, handling trigger modes and acquisition setup."""
 
@@ -186,7 +185,7 @@ class EigerDataLogic(DetectorDataLogic):
             # TODO sort out how to get this from the plan
             self.fileio.num_triggers.set(5000),
         )
-       
+
         await set_and_wait_for_other_value(
             set_signal=self.fileio.acquire,
             set_value=True,
@@ -195,7 +194,6 @@ class EigerDataLogic(DetectorDataLogic):
             wait_for_set_completion=False,
             timeout=DEFAULT_TIMEOUT,
         )
-
 
         if not await self.fileio.file_path_exists.get_value():
             msg = f"File path {self._file_info.directory_path} does not exist"
@@ -279,6 +277,7 @@ class EigerDataLogic(DetectorDataLogic):
             if not master_file_path.exists():
                 ...
         self._file_info = None
+
 
 # TODO sort out if ths is the right name of things
 class EigerArmLogic(DetectorArmLogic):
