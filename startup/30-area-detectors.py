@@ -38,6 +38,7 @@ from ophyd_async.epics.adcore import (
     AreaDetector,
     NDPluginBaseIO,
     trigger_info_from_num_images,
+    ADArmLogic
 )
 from collections.abc import AsyncGenerator, Iterator
 from urllib.parse import urlunparse
@@ -130,7 +131,7 @@ class EigerController(DetectorTriggerLogic):
         else:
             image_mode = ADImageMode.MULTIPLE
 
-        await self.driver.num_triggers.set(num)
+        # await self.driver.num_triggers.set(num)
 
         await asyncio.gather(
             self.driver.image_mode.set(image_mode),
@@ -185,7 +186,7 @@ class EigerDataLogic(DetectorDataLogic):
     async def prepare_unbounded(self, datakey_name: str) -> StreamableDataProvider:
         """Provider can work for an unbounded number of collections."""
         # Get file path info from path provider
-        self._file_info = self._path_provider(device_name="eiger2-1")
+        self._file_info = self._path_provider("eiger2-1")
         self._master_file_path_cache.clear()
 
         # Set the name pattern with $id replacement similar to original
@@ -198,7 +199,7 @@ class EigerDataLogic(DetectorDataLogic):
             self.fileio.fw_name_pattern.set(name_pattern),
             self.fileio.fw_enable.set(True),
             self.fileio.save_files.set(True),
-            self.fileio.data_source.set(EigerDataSource.FILE_WRITER),
+            # self.fileio.data_source.set(EigerDataSource.FILE_WRITER),
             self.fileio.num_capture.set(0),
             # Use array_counter to track the total number of images written
             self.fileio.array_counter.set(0),
@@ -231,9 +232,9 @@ class EigerDataLogic(DetectorDataLogic):
         mfp = await self._master_file_path
         # TODO sort out how to get from parent
         name = "eiger"
-        exposures_per_event = 1
+        exposures_per_event = await self.fileio.num_images.get_value()
         return StreamResourceDataProvider(
-            uri=f"file:///{mfp}",
+            uri=urlunparse(("file", "localhost", str(mfp), "", "", None )),
             resources=[
                 StreamResourceInfo(
                     data_key=f"{name}_image",
@@ -244,11 +245,12 @@ class EigerDataLogic(DetectorDataLogic):
                     parameters={
                         "dataset": f"entry/data/data_{1:06d}",
                     },
-                    source=str(await self.fileio.data_source.get_value()),
+                    # TODO put in better value
+                    source='EIGER',
                 )
             ],
             mimetype="application/x-hdf5",
-            collections_written_signal= self.fileio.num_images_counter,
+            collections_written_signal= self.fileio.array_counter,
         )
 
     @property
@@ -310,7 +312,7 @@ class EigerDetector(AreaDetector):
         #     )
         # else:
         writer_logic = EigerDataLogic(fileio=driver, path_provider=path_provider)
-
+        arm_logic = ADArmLogic(driver)
         super().__init__(
             prefix=prefix,
             driver=driver,
@@ -319,6 +321,7 @@ class EigerDetector(AreaDetector):
             name=name,
             config_sigs=config_sigs,
             plugins=plugins,
+            arm_logic=arm_logic,
         )
         # self.writer = None
         self.add_detector_logics(writer_logic)
