@@ -2,7 +2,7 @@
 channels = ["conda-forge"]
 name = "cdi-profile-collection"
 platforms = ["linux-64", "osx-64", "osx-arm64"]
-version = "2025.3.0"
+version = "2026.2.0"
 
 [system-requirements]
 libc = "2.17"
@@ -11,17 +11,17 @@ libc = "2.17"
 OPHYD_ASYNC_PRESERVE_DETECTOR_STATE = "YES"
 
 [feature.profile.dependencies]
-bluesky-base = ">=1.14.4"
+bluesky-base = "==1.15.0"
 bluesky-queueserver = "*"
-matplotlib-base= ">=3.9.3,<4"
+matplotlib-base= ">=3.10"
 networkx = ">=3.4.2,<4"
-nslsii = "~=0.11.5"
+nslsii = "==0.11.8"
 numpy = "*"
 ophyd = ">=1.11.0"
 pyepics = "*"
 python = ">=3.12,<3.13"
 semver = ">=3.0.4,<4"
-tiled-client = ">=0.1.6"
+tiled-client = "==0.2.9"
 # needed until we get ophyd-async packaged
 colorlog = ">=6.9.0,<7"
 pydantic-numpy = "*"
@@ -29,7 +29,7 @@ hdf5-external-filter-plugins = ">=0.1.0,<0.2"
 databroker = "==2.0.0b68"
 p4p = ">=4.2.0,<5"
 pip = ">=25.2,<26"
-bluesky-tiled-plugins = ">=2.0.0b68"
+bluesky-tiled-plugins = "==2.0.2"
 
 # Linux-only dependencies (EPICS and HDF5 plugins may not be available on macOS)
 [feature.profile.target.linux-64.dependencies]
