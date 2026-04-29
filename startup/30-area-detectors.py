@@ -164,6 +164,7 @@ class EigerDataLogic(DetectorDataLogic):
     async def prepare_unbounded(self, datakey_name: str) -> StreamableDataProvider:
         """Provider can work for an unbounded number of collections."""
         # Get file path info from path provider
+        # TODO: should probably just pass datakey_name
         self._file_info = self._path_provider("eiger2-1")
         self._master_file_path_cache.clear()
 
@@ -269,14 +270,17 @@ class EigerDataLogic(DetectorDataLogic):
     async def get_indices_written(self) -> int:
         return await self.fileio.array_counter.get_value()
 
-    async def close(self) -> None:
+    async def stop(self) -> None:
         """Clean up file writing after acquisition and validate files exist."""
 
         # Check that the master files were written
-        for master_file_path in self._master_file_path_cache:
-            if not master_file_path.exists():
-                ...
+        # for master_file_path in self._master_file_path_cache:
+        #     if not master_file_path.exists():
+        #         ...
+
         self._file_info = None
+        await self.fileio.fw_enable.set(False)
+
 
 
 # TODO sort out if ths is the right name of things
@@ -290,21 +294,33 @@ class EigerArmLogic(DetectorArmLogic):
         else:
             self.driver_armed_signal = driver.acquire
         self.acquire_status: AsyncStatus | None = None
+        self._rolling_image_counter = 0
 
     async def arm(self):
-        ret = await self.driver.trigger.set(0)
-
+        self._rolling_image_counter = await self.driver.num_images_counter.get_value()
+        ret = await self.driver.trigger.set(1)
         return ret
 
-    async def wait_for_idle(self): ...
+    async def wait_for_idle(self):
+        
+        target_num_images, frame_acquire_period = await asyncio.gather(self.driver.num_images.get_value(),
+                                                                       self.driver.acquire_period.get_value())
+        frame_timeout = frame_acquire_period + DEFAULT_TIMEOUT
+        done_timeout = frame_timeout * target_num_images
+        target_num_images += self._rolling_image_counter
+        async for images_complete in observe_value(self.driver.num_images_counter, timeout=frame_timeout, done_timeout=done_timeout):
+            if images_complete == target_num_images:
+                break
 
     async def disarm(self):
+        self._rolling_image_counter = 0
         await stop_busy_record(self.driver.acquire)
 
         await asyncio.gather(
             self.driver.manual_trigger.set(False),
             self.driver.num_triggers.set(1),
         )
+
 
 
 class EigerDetector(AreaDetector):
