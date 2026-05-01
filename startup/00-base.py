@@ -32,4 +32,3 @@ c = tiled_reading_client = from_uri(
 tw = TiledWriter(client=tiled_writing_client)
 
 RE.subscribe(tw)  # noqa: F821
-
