@@ -282,7 +282,6 @@ class EigerDataLogic(DetectorDataLogic):
         await self.fileio.fw_enable.set(False)
 
 
-
 # TODO sort out if ths is the right name of things
 class EigerArmLogic(DetectorArmLogic):
     def __init__(
@@ -302,13 +301,17 @@ class EigerArmLogic(DetectorArmLogic):
         return ret
 
     async def wait_for_idle(self):
-        
-        target_num_images, frame_acquire_period = await asyncio.gather(self.driver.num_images.get_value(),
-                                                                       self.driver.acquire_period.get_value())
+        target_num_images, frame_acquire_period = await asyncio.gather(
+            self.driver.num_images.get_value(), self.driver.acquire_period.get_value()
+        )
         frame_timeout = frame_acquire_period + DEFAULT_TIMEOUT
         done_timeout = frame_timeout * target_num_images
         target_num_images += self._rolling_image_counter
-        async for images_complete in observe_value(self.driver.num_images_counter, timeout=frame_timeout, done_timeout=done_timeout):
+        async for images_complete in observe_value(
+            self.driver.num_images_counter,
+            timeout=frame_timeout,
+            done_timeout=done_timeout,
+        ):
             if images_complete == target_num_images:
                 break
 
@@ -320,7 +323,6 @@ class EigerArmLogic(DetectorArmLogic):
             self.driver.manual_trigger.set(False),
             self.driver.num_triggers.set(1),
         )
-
 
 
 class EigerDetector(AreaDetector):
