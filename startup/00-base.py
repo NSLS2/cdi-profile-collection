@@ -1,3 +1,5 @@
+print(f"Loading {__file__!r} ...")
+
 import os
 
 import nslsii
@@ -6,8 +8,6 @@ from ophyd.signal import EpicsSignalBase
 from tiled.client import from_uri
 
 EpicsSignalBase.set_defaults(timeout=10, connection_timeout=10)
-
-print("LOADING 00")
 
 ### Configure Base
 nslsii.configure_base(
