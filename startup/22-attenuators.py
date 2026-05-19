@@ -4,7 +4,7 @@ from cditools.attenuator import AttenuatorBank
 from ophyd_async.core import init_devices
 
 
-prefix = "XF:09ID1-ES{IOLOGIK1:E1212}"
+
 
 # attenuator format must be ("material", thickness_in_microns)
 attenuators_config = [
@@ -15,4 +15,4 @@ attenuators_config = [
 ]
 
 with init_devices():
-    bank = AttenuatorBank(prefix, energy)
+    bank = AttenuatorBank("XF:09ID1-ES{IOLOGIK1:E1212}", energy)
