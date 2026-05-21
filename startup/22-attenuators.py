@@ -4,8 +4,6 @@ from cditools.attenuator import AttenuatorBank
 from ophyd_async.core import init_devices
 
 
-
-
 # attenuator format must be ("material", thickness_in_microns)
 attenuators_config = [
     ("Al", 16),
