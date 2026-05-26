@@ -166,3 +166,6 @@ history*.sqlite
 # pixi environments
 .pixi/*
 !.pixi/config.toml
+
+# pv output
+pv_types.json
