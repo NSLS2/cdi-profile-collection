@@ -24,6 +24,26 @@ except ImportError:
             getattr(stats.centroid, attr).kind = "hinted"
 
 
+class MaskedCam(StandardProsilicaCam):
+    image = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._default_plugin_graph = {
+            self.stats1: self.roi1,
+            self.stats2: self.roi2,
+            self.stats3: self.roi3,
+            self.stats4: self.roi4,
+            self.stats5: self.cam,
+            self.trans1: self.cam,
+            self.roi1: self.cam,
+            self.roi2: self.cam,
+            self.roi3: self.cam,
+            self.roi4: self.cam,
+            self.roistat1: self.cam,
+        }
+
+
 cam_A1 = set_roiN_kinds(StandardProsilicaCam("XF:09IDA-BI{DM:1-Cam:1}", name="cam_A1"))
 cam_A2 = set_roiN_kinds(
     StandardProsilicaCam("XF:09IDA-BI{WBStop-Cam:2}", name="cam_A2")
@@ -39,10 +59,13 @@ cam_C7 = set_roiN_kinds(
 cam_C8 = set_roiN_kinds(
     StandardProsilicaCam("XF:09IDC-BI{FS:KBh-Cam:8}", name="cam_C8")
 )
-cam_C9 = set_roiN_kinds(StandardProsilicaCam("XF:09IDC-BI{BCU-Cam:9}", name="cam_C9"))
-cam_C10 = set_roiN_kinds(
-    StandardProsilicaCam("XF:09IDC-BI{SMPL-Cam:10}", name="cam_C10")
-)
+cam_C9 = set_roiN_kinds(MaskedCam("XF:09IDC-BI{BCU-Cam:9}", name="cam_C9"))
+cam_C10 = set_roiN_kinds(MaskedCam("XF:09IDC-BI{SMPL-Cam:10}", name="cam_C10"))
+cam_C15 = set_roiN_kinds(MaskedCam("XF:09IDC-BI{Cam:15}", name="cam_C15"))
+
+for c in [cam_C9, cam_C10, cam_C15]:
+    c.stats5.total.kind = "hinted"
+    c.stats5.kind = "normal"
 
 vpm_fs = StandardScreen("XF:09IDA-OP:1{FS:VPM-Ax:Y}Mtr", name="screen_vpm")
 hpm_fs = StandardScreen("XF:09IDA-OP:1{FS:HPM-Ax:Y}Mtr", name="screen_hpm")
