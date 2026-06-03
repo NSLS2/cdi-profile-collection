@@ -63,9 +63,9 @@ cam_C9 = set_roiN_kinds(MaskedCam("XF:09IDC-BI{BCU-Cam:9}", name="cam_C9"))
 cam_C10 = set_roiN_kinds(MaskedCam("XF:09IDC-BI{SMPL-Cam:10}", name="cam_C10"))
 cam_C15 = set_roiN_kinds(MaskedCam("XF:09IDC-BI{Cam:15}", name="cam_C15"))
 
-for c in [cam_C9, cam_C10, cam_C15]:
-    c.stats5.total.kind = "hinted"
-    c.stats5.kind = "normal"
+for _c in [cam_C9, cam_C10, cam_C15]:
+    _c.stats5.total.kind = "hinted"
+    _c.stats5.kind = "normal"
 
 vpm_fs = StandardScreen("XF:09IDA-OP:1{FS:VPM-Ax:Y}Mtr", name="screen_vpm")
 hpm_fs = StandardScreen("XF:09IDA-OP:1{FS:HPM-Ax:Y}Mtr", name="screen_hpm")
