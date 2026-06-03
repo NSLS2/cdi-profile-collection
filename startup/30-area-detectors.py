@@ -14,6 +14,7 @@ from cditools.eiger_async import (
     EigerTriggerMode,
     logger,
 )
+from cditools.merlin_async import MerlinDetector
 from nslsii.ophyd_async.providers import NSLS2PathProvider
 from ophyd_async.core import (
     AsyncStatus,
@@ -439,3 +440,6 @@ with init_devices():
     eiger = EigerDetector(
         prefix="XF:09ID1-ES{Det:Eig1}", name="eiger", path_provider=pp
     )
+    # merlin = MerlinDetector(
+    #     prefix="XF:09ID1-ES{Det:Merlin1}", name="merlin", path_provider=pp
+    # )
