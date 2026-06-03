@@ -11,6 +11,6 @@ with init_devices():
     eiger = EigerDetector(
         prefix="XF:09ID1-ES{Det:Eig1}", name="eiger2-1", path_provider=pp
     )
-    # merlin = MerlinDetector(
-    #     prefix="XF:09ID1-ES{Det:Merlin1}", name="merlin", path_provider=pp
-    # )
+    merlin = MerlinDetector(
+        prefix="XF:09ID1-ES{Det:Merlin1}", name="merlines-1", path_provider=pp
+    )
