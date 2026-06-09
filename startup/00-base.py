@@ -23,11 +23,13 @@ tiled_writing_client = from_uri(
     "https://tiled.nsls2.bnl.gov/api/v1/metadata/cdi/raw",
     api_key=os.environ["TILED_BLUESKY_WRITING_API_KEY_CDI"],
 )
+tiled_writing_client.context.http_client.headers['tiled-qos'] = 'acquisition'
 
 c = tiled_reading_client = from_uri(
     "https://tiled.nsls2.bnl.gov/api/v1/metadata/cdi/raw",
     include_data_sources=True,
 )
+c.context.http_client.headers['tiled-qos'] = 'acquisition'
 
 tw = TiledWriter(client=tiled_writing_client)
 
