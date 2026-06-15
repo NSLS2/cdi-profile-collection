@@ -5,7 +5,6 @@ from cditools.motors import (
     DM3,
     DM4,
     DMM,
-    GON,
     HPM,
     KB,
     VPM,
@@ -25,5 +24,5 @@ energy = Energy(prefix="XF:09IDA-OP:1{", name="energy", labels=["dcm"])
 dm3 = DM3(prefix="XF:09IDB-OP:1{", name="dm3", labels=["motors"])
 kb = KB(prefix="XF:09IDC-OP:1{", name="kb", labels=["motors"])
 dm4 = DM4(prefix="XF:09IDC-OP:1{", name="dm4", labels=["motors"])
-gon = GON(prefix="XF:09IDC-OP:1{", name="gon", labels=["motors"])
+
 bcu = BCU(prefix="XF:09IDC-OP:1{", name="bcu", labels=["motors"])
