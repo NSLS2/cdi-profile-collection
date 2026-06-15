@@ -39,16 +39,29 @@ class TDMSAxis(PVPositioner):
 
 
 class TDMSTower(Device):
-    tx = FCpt(TDMSAxis, "XF:09IDC-ES:1{{TDMS:T{self._num}-Ax:TX}}")
-    ty = FCpt(TDMSAxis, "XF:09IDC-ES:1{{TDMS:T{self._num}-Ax:TY}}")
+    # TODO replace with TDMSAxis when motions get commissioned
+    # rotation with air-pads on floor (-5deg, 117deg)
+    ay = FCpt(EpicsSignalRO, "XF:09IDC-ES:1{{TDMS:A{self._num}-Ax:AY}}MTR:RBV-RB0")
+
+    # tower translation in/out (500mm, 10,000 mm)
     tz = FCpt(TDMSAxis, "XF:09IDC-ES:1{{TDMS:A{self._num}-Ax:TZ}}")
 
-    camay = FCpt(TDMSAxis, "XF:09IDC-ES:1{{TDMS:T{self._num}-Ax:CAM_AY}}")
-
-    # TODO replace with TDMSAxis when motions get comissioned
-    ax = FCpt(EpicsSignalRO, "XF:09IDC-ES:1{{TDMS:T{self._num}-Ax:AX}}MTR:RBV-RB0")
-    ay = FCpt(EpicsSignalRO, "XF:09IDC-ES:1{{TDMS:A{self._num}-Ax:AY}}MTR:RBV-RB0")
+    # roll (-1deg, 1deg) to compensate for floor deviation, tied to feedback may never control directly
     az = FCpt(EpicsSignalRO, "XF:09IDC-ES:1{{TDMS:T{self._num}-Ax:AZ}}MTR:RBV-RB0")
+
+    # move camera up/down (-150mm, 1500mm)
+    ty = FCpt(TDMSAxis, "XF:09IDC-ES:1{{TDMS:T{self._num}-Ax:TY}}")
+
+    # shift camera inboard/outboard (-25mm, 25mm)
+    tx = FCpt(TDMSAxis, "XF:09IDC-ES:1{{TDMS:T{self._num}-Ax:TX}}")
+
+    # TODO replace with TDMSAxis when motions get commissioned
+    # coupled to feedback to account for floor deviation
+    # pitch (-17deg, 75deg),
+    ax = FCpt(EpicsSignalRO, "XF:09IDC-ES:1{{TDMS:T{self._num}-Ax:AX}}MTR:RBV-RB0")
+
+    # rotation of camera platform
+    camay = FCpt(TDMSAxis, "XF:09IDC-ES:1{{TDMS:T{self._num}-Ax:CAM_AY}}")
 
     def __init__(self, *, num, **kwargs):
         self._num = num
