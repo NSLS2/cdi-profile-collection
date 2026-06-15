@@ -320,18 +320,15 @@ class Vscatter4C(DiffractometerBase):
 
     Real axes
     ---------
-    omega, chi, phi
+    mu, omega, chi, phi
         Bound to the shared goniometer sample motors (passed in via kwargs).
-    tth
-        A :class:`ProxyPositioner` forwarding to the per-arm
-        :class:`TDMSArm` ``tth`` pseudo-axis.
 
     Pseudo axes
     -----------
     h, k, l
-        Reciprocal-space coordinates (solver: ``hkl_soleil``, geometry ``E4CV``).
+        Reciprocal-space coordinates (solver: ``hkl_soleil``, geometry ``PETRA3 P09 EH2``).
 
-    The ``omega``/``chi``/``phi``/``tth`` real axes are supplied by the
+    The ``mu``/``omega``/``chi``/``phi`` real axes are supplied by the
     :func:`make_vscatter4c` subclass factory (which wires each proxy to its
     target); this base class defines only the pseudo axes, beam, and solver
     configuration.
@@ -353,8 +350,9 @@ class Vscatter4C(DiffractometerBase):
     )
 
     # libhkl solver-expected ordering.
+    # https://blueskyproject.io/hklpy2/diffractometers.html#solver-hkl-soleil-geometry-petra3-p09-eh2
     _pseudo = ["h", "k", "l"]
-    _real = ["omega", "chi", "phi", "tth"]
+    _real = ["mu", "omega", "chi", "phi", "delta", "gamma"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(
@@ -363,7 +361,7 @@ class Vscatter4C(DiffractometerBase):
             geometry="PETRA3 P09 EH2",
             solver_kwargs={"engine": "hkl"},
             pseudos=["h", "k", "l"],
-            reals=["omega", "chi", "phi", "tth"],
+            reals=["mu", "omega", "chi", "phi", "delta", "gamma"],
             **kwargs,
         )
 # To get to our coordinate system from the hkl PETRA3 P09 EH2 geometry,
@@ -386,7 +384,7 @@ class Vscatter4C(DiffractometerBase):
 # phi [0 0 1]
 # locked at 0
 
-def make_hscatter4c(name, *, omega_motor, chi_motor, phi_motor, tth_target, **kwargs):
+def make_vscatter4c(name, *, mu_motor, omega_motor, chi_motor, phi_motor, **kwargs):
     """Construct a :class:`Hscatter4C` with its proxy real axes wired to targets.
 
     This will get simpler when we can move to ophyd async
@@ -396,18 +394,16 @@ def make_hscatter4c(name, *, omega_motor, chi_motor, phi_motor, tth_target, **kw
     name : str
         Device name.
     omega_motor, chi_motor, phi_motor : positioner
-        Shared goniometer sample motors.
-    tth_target : positioner
-        The per-arm ``TDMSArm.tth`` pseudo-axis.
+        Shared goniometer sample / alignment motors.
     """
 
     class _Wired(Vscatter4C):
+        mu = Cpt(ProxyPositioner, target=mu_motor, kind="hinted")
         omega = Cpt(ProxyPositioner, target=omega_motor, kind="hinted")
         chi = Cpt(ProxyPositioner, target=chi_motor, kind="hinted")
         phi = Cpt(ProxyPositioner, target=phi_motor, kind="hinted")
-        tth = Cpt(ProxyPositioner, target=tth_target, kind="hinted")
 
-    _Wired.__name__ = f"Hscatter4C_{name}"
+    _Wired.__name__ = f"Vscatter4C_{name}"
     diffractometer = _Wired(name=name, labels=["diffractometer"], **kwargs)
     _resync_real_proxies(diffractometer)
     return diffractometer
@@ -418,24 +414,29 @@ gon = GON(prefix="XF:09IDC-OP:1{", name="gon", labels=["motors"])
 T1_arm = TDMSArm(name="T1_arm", num=1, labels=["diffractometer"])
 T2_arm = TDMSArm(name="T2_arm", num=2, labels=["diffractometer"])
 
+_mu_motor = gon.align.rx
 _omega_motor = gon.sam.ry
-_chi_motor = gon.sam.c_sm.lrz
-_phi_motor = gon.sam.c_sm.lrx
+# _chi_motor = gon.sam.c_sm.lrz
+_chi_motor = gon.align.rz
+# _phi_motor = gon.sam.c_sm.lrx
+_phi_motor = 0
+_delta = ...
+_gamma = ...
 
 # Per-arm E4CV diffractometers
 diff_T1 = make_vscatter4c(
     "diff_T1",
+    mu_motor=_mu_motor,
     omega_motor=_omega_motor,
     chi_motor=_chi_motor,
     phi_motor=_phi_motor,
-    tth_target=T1_arm.tth,
 )
 diff_T2 = make_vscatter4c(
     "diff_T2",
+    mu_motor=_mu_motor,
     omega_motor=_omega_motor,
     chi_motor=_chi_motor,
     phi_motor=_phi_motor,
-    tth_target=T2_arm.tth,
 )
 # PETRA3 P09 EH2 (target, but too many axis)
 # SOLEIL MARS (alternate)
