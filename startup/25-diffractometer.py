@@ -360,16 +360,34 @@ class Vscatter4C(DiffractometerBase):
         super().__init__(
             *args,
             solver="hkl_soleil",
-            geometry="E4CV",
+            geometry="PETRA3 P09 EH2",
             solver_kwargs={"engine": "hkl"},
             pseudos=["h", "k", "l"],
             reals=["omega", "chi", "phi", "tth"],
             **kwargs,
         )
+# To get to our coordinate system from the hkl PETRA3 P09 EH2 geometry,
+# rotate 90 degrees down about y, and then 90 degrees up about z.
+#
+# https://people.debian.org/~picca/hkl/hkl.html#org9150360
+# them us
+#--------
+# x -> z
+# y -> x
+# z -> y
 
+# https://people.debian.org/~picca/hkl/hkl.html#org4a29c15
+# mu [0,-1, 0] -> -rx
+# rotation about -y becomes rotation about -x in our coordinates
+# omega [ 0 0 1] -> ry
+# rotation about z becomes rotation about y in our coordinates
+# chi [1 0 0] -> rz
+# rotation about x becomes rotation about z in our coordinates
+# phi [0 0 1]
+# locked at 0
 
-def make_vscatter4c(name, *, omega_motor, chi_motor, phi_motor, tth_target, **kwargs):
-    """Construct a :class:`Vscatter4C` with its proxy real axes wired to targets.
+def make_hscatter4c(name, *, omega_motor, chi_motor, phi_motor, tth_target, **kwargs):
+    """Construct a :class:`Hscatter4C` with its proxy real axes wired to targets.
 
     This will get simpler when we can move to ophyd async
 
@@ -389,7 +407,7 @@ def make_vscatter4c(name, *, omega_motor, chi_motor, phi_motor, tth_target, **kw
         phi = Cpt(ProxyPositioner, target=phi_motor, kind="hinted")
         tth = Cpt(ProxyPositioner, target=tth_target, kind="hinted")
 
-    _Wired.__name__ = f"Vscatter4C_{name}"
+    _Wired.__name__ = f"Hscatter4C_{name}"
     diffractometer = _Wired(name=name, labels=["diffractometer"], **kwargs)
     _resync_real_proxies(diffractometer)
     return diffractometer
@@ -400,7 +418,7 @@ gon = GON(prefix="XF:09IDC-OP:1{", name="gon", labels=["motors"])
 T1_arm = TDMSArm(name="T1_arm", num=1, labels=["diffractometer"])
 T2_arm = TDMSArm(name="T2_arm", num=2, labels=["diffractometer"])
 
-_omega_motor = gon.sam.c_lg.lrx
+_omega_motor = gon.sam.ry
 _chi_motor = gon.sam.c_sm.lrz
 _phi_motor = gon.sam.c_sm.lrx
 
@@ -419,3 +437,6 @@ diff_T2 = make_vscatter4c(
     phi_motor=_phi_motor,
     tth_target=T2_arm.tth,
 )
+# PETRA3 P09 EH2 (target, but too many axis)
+# SOLEIL MARS (alternate)
+# SOLEIL NANOSCOPIUM ROBOT (alterate, but confusing modes)
