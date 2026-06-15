@@ -1,0 +1,8 @@
+{
+  "venvPath": ".pixi/envs",
+  "venv": "terminal",
+  "pythonVersion": "3.12",
+  "include": ["startup"],
+  "reportMissingImports": "warning",
+  "reportMissingModuleSource": "none"
+}
