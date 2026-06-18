@@ -25,23 +25,23 @@ class I404(Device):
 #This device's IOC doesn't provide a total current PV.  For our 4-diode
 #quadrant BPM, that sum is not especially meaningful, so we can calculate
 #it on-the-fly from the channels if we need it.
-        channel1 = Cpt(EpicsSignalRO, 'I:R1-I', kind="normal")
-        channel2 = Cpt(EpicsSignalRO, 'I:R2-I', kind="normal")
-        channel3 = Cpt(EpicsSignalRO, 'I:R3-I', kind="normal")
-        channel4 = Cpt(EpicsSignalRO, 'I:R4-I', kind="normal")
-        posX = Cpt(EpicsSignalRO, 'Pos:X-I', kind="normal")
-        posY = Cpt(EpicsSignalRO, 'Pos:Y-I', kind="normal")
-        int_time = Cpt(EpicsSignalRO, 'Time:Intg-I', kind="normal")
-        amp_range = Cpt(EpicsSignalRO, 'Val:Rng-I', kind="normal")
+    channel1 = Cpt(EpicsSignalRO, 'I:R1-I', kind="normal")
+    channel2 = Cpt(EpicsSignalRO, 'I:R2-I', kind="normal")
+    channel3 = Cpt(EpicsSignalRO, 'I:R3-I', kind="normal")
+    channel4 = Cpt(EpicsSignalRO, 'I:R4-I', kind="normal")
+    posX = Cpt(EpicsSignalRO, 'Pos:X-I', kind="normal")
+    posY = Cpt(EpicsSignalRO, 'Pos:Y-I', kind="normal")
+    int_time = Cpt(EpicsSignalRO, 'Time:Intg-I', kind="normal")
+    amp_range = Cpt(EpicsSignalRO, 'Val:Rng-I', kind="normal")
 
 class I400(Device):
 #CDI uses this as a single-channel read-out for the foil intensity monitor
-        channel1 = Cpt(EpicsSignalRO, ':IC1_MON', kind="normal")
-        channel2 = Cpt(EpicsSignalRO, ':IC2_MON', kind="normal")
-        channel3 = Cpt(EpicsSignalRO, ':IC3_MON', kind="normal")
-        channel4 = Cpt(EpicsSignalRO, ':IC4_MON', kind="normal")
-        int_time = Cpt(EpicsSignalRO, ':ITIME_MON', kind="normal")
-        amp_range = Cpt(EpicsSignalRO, ':RANGE_MON', kind="normal")
+    channel1 = Cpt(EpicsSignalRO, ':IC1_MON', kind="normal")
+    channel2 = Cpt(EpicsSignalRO, ':IC2_MON', kind="normal")
+    channel3 = Cpt(EpicsSignalRO, ':IC3_MON', kind="normal")
+    channel4 = Cpt(EpicsSignalRO, ':IC4_MON', kind="normal")
+    int_time = Cpt(EpicsSignalRO, ':ITIME_MON', kind="normal")
+    amp_range = Cpt(EpicsSignalRO, ':RANGE_MON', kind="normal")
 
 ###############################################################################
 # devices                                                                     #
