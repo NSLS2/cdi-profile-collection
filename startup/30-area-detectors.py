@@ -8,5 +8,5 @@ pp = NSLS2PathProvider(RE.md)  # noqa: F821
 
 with init_devices():
     eiger = EigerDetector(
-        prefix="XF:09ID1-ES{Det:Eig1}", name="eiger", path_provider=pp
+        prefix="XF:09ID1-ES{Det:Eig1}", name="eiger2-1", path_provider=pp
     )
