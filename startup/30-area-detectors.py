@@ -13,7 +13,7 @@ with init_devices():
         prefix="XF:09ID1-ES{Det:Eig1}", name="eiger2-1", path_provider=pp
     )
     merlin = MerlinDetector(
-        "XF:09ID1-ES{Det:Merlin1}", 
-        adcore.ADWriterFactory.hdf(pp, writer_suffix='HDF1:'),
+        "XF:09ID1-ES{Det:Merlin1}",
+        adcore.ADWriterFactory.hdf(pp, writer_suffix="HDF1:"),
         name="merlines-1",
     )
