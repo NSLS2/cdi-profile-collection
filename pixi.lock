@@ -138,7 +138,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/readline-8.3-h68b038d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/referencing-0.37.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/rpds-py-2026.5.1-py314h1d56075_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/ruff-0.15.19-h1ddadc8_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/ruff-0.15.20-h1ddadc8_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/setuptools-82.0.1-pyh332efcf_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tk-8.6.13-h7142dee_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/traitlets-5.15.1-pyhcf101f3_0.conda
@@ -797,7 +797,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstandard-0.25.0-py312h5253ce2_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
       - pypi: https://files.pythonhosted.org/packages/51/89/da0f32b679b8769dd472eb2927308d328bf75c296629fd9f95135afacd0a/aioca-2.1-py3-none-any.whl
-      - pypi: git+https://github.com/nsls2/cditools?rev=main#bde88fd59e62616d31f2eb3f9ca4424dd1bd1891
+      - pypi: git+https://github.com/nsls2/cditools?rev=main#f1c39d9ca68a378591ee0b8daf61d561d04d3ba8
       - pypi: https://files.pythonhosted.org/packages/90/36/96ac313cc51e147556e80d2388ca7c55672d13c06cb87353d8d607125284/ophyd_async-0.19.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/67/d8/8af47ecca80c365d5ffcdce6fae78ec71921052189c1486ba9dbac7a36f4/pvxslibs-1.3.2-cp312-cp312-manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/68/b9/f44b139096467996b4d85589d9880fd55f0c80a204d298a1b73d0adc2654/scanspec-1.0.0-py3-none-any.whl
@@ -1317,7 +1317,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstandard-0.25.0-py312h01f6755_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstd-1.5.7-h3eecb57_6.conda
       - pypi: https://files.pythonhosted.org/packages/51/89/da0f32b679b8769dd472eb2927308d328bf75c296629fd9f95135afacd0a/aioca-2.1-py3-none-any.whl
-      - pypi: git+https://github.com/nsls2/cditools?rev=main#bde88fd59e62616d31f2eb3f9ca4424dd1bd1891
+      - pypi: git+https://github.com/nsls2/cditools?rev=main#f1c39d9ca68a378591ee0b8daf61d561d04d3ba8
       - pypi: https://files.pythonhosted.org/packages/10/fc/27b418beb7e7598783fe9a9eea830144b9e1a130c338d7da3ecd354447ad/epicscorelibs-7.0.10.99.0.1-cp312-cp312-macosx_11_0_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/90/36/96ac313cc51e147556e80d2388ca7c55672d13c06cb87353d8d607125284/ophyd_async-0.19.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e2/c9/6f98a61991f4408acd416920f8ee2f5c40e908cfd46e59513bcf4d504396/pvxslibs-1.5.2-cp312-cp312-macosx_11_0_universal2.whl
@@ -1839,7 +1839,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstandard-0.25.0-py312h37e1c23_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hbf9d68e_6.conda
       - pypi: https://files.pythonhosted.org/packages/51/89/da0f32b679b8769dd472eb2927308d328bf75c296629fd9f95135afacd0a/aioca-2.1-py3-none-any.whl
-      - pypi: git+https://github.com/nsls2/cditools?rev=main#bde88fd59e62616d31f2eb3f9ca4424dd1bd1891
+      - pypi: git+https://github.com/nsls2/cditools?rev=main#f1c39d9ca68a378591ee0b8daf61d561d04d3ba8
       - pypi: https://files.pythonhosted.org/packages/10/fc/27b418beb7e7598783fe9a9eea830144b9e1a130c338d7da3ecd354447ad/epicscorelibs-7.0.10.99.0.1-cp312-cp312-macosx_11_0_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/90/36/96ac313cc51e147556e80d2388ca7c55672d13c06cb87353d8d607125284/ophyd_async-0.19.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e2/c9/6f98a61991f4408acd416920f8ee2f5c40e908cfd46e59513bcf4d504396/pvxslibs-1.5.2-cp312-cp312-macosx_11_0_universal2.whl
@@ -2440,7 +2440,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstandard-0.25.0-py312h5253ce2_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
       - pypi: https://files.pythonhosted.org/packages/51/89/da0f32b679b8769dd472eb2927308d328bf75c296629fd9f95135afacd0a/aioca-2.1-py3-none-any.whl
-      - pypi: git+https://github.com/nsls2/cditools?rev=main#bde88fd59e62616d31f2eb3f9ca4424dd1bd1891
+      - pypi: git+https://github.com/nsls2/cditools?rev=main#f1c39d9ca68a378591ee0b8daf61d561d04d3ba8
       - pypi: https://files.pythonhosted.org/packages/90/36/96ac313cc51e147556e80d2388ca7c55672d13c06cb87353d8d607125284/ophyd_async-0.19.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/67/d8/8af47ecca80c365d5ffcdce6fae78ec71921052189c1486ba9dbac7a36f4/pvxslibs-1.3.2-cp312-cp312-manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/68/b9/f44b139096467996b4d85589d9880fd55f0c80a204d298a1b73d0adc2654/scanspec-1.0.0-py3-none-any.whl
@@ -2962,7 +2962,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstandard-0.25.0-py312h01f6755_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstd-1.5.7-h3eecb57_6.conda
       - pypi: https://files.pythonhosted.org/packages/51/89/da0f32b679b8769dd472eb2927308d328bf75c296629fd9f95135afacd0a/aioca-2.1-py3-none-any.whl
-      - pypi: git+https://github.com/nsls2/cditools?rev=main#bde88fd59e62616d31f2eb3f9ca4424dd1bd1891
+      - pypi: git+https://github.com/nsls2/cditools?rev=main#f1c39d9ca68a378591ee0b8daf61d561d04d3ba8
       - pypi: https://files.pythonhosted.org/packages/10/fc/27b418beb7e7598783fe9a9eea830144b9e1a130c338d7da3ecd354447ad/epicscorelibs-7.0.10.99.0.1-cp312-cp312-macosx_11_0_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/90/36/96ac313cc51e147556e80d2388ca7c55672d13c06cb87353d8d607125284/ophyd_async-0.19.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e2/c9/6f98a61991f4408acd416920f8ee2f5c40e908cfd46e59513bcf4d504396/pvxslibs-1.5.2-cp312-cp312-macosx_11_0_universal2.whl
@@ -3486,7 +3486,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstandard-0.25.0-py312h37e1c23_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hbf9d68e_6.conda
       - pypi: https://files.pythonhosted.org/packages/51/89/da0f32b679b8769dd472eb2927308d328bf75c296629fd9f95135afacd0a/aioca-2.1-py3-none-any.whl
-      - pypi: git+https://github.com/nsls2/cditools?rev=main#bde88fd59e62616d31f2eb3f9ca4424dd1bd1891
+      - pypi: git+https://github.com/nsls2/cditools?rev=main#f1c39d9ca68a378591ee0b8daf61d561d04d3ba8
       - pypi: https://files.pythonhosted.org/packages/10/fc/27b418beb7e7598783fe9a9eea830144b9e1a130c338d7da3ecd354447ad/epicscorelibs-7.0.10.99.0.1-cp312-cp312-macosx_11_0_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/90/36/96ac313cc51e147556e80d2388ca7c55672d13c06cb87353d8d607125284/ophyd_async-0.19.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e2/c9/6f98a61991f4408acd416920f8ee2f5c40e908cfd46e59513bcf4d504396/pvxslibs-1.5.2-cp312-cp312-macosx_11_0_universal2.whl
@@ -5649,9 +5649,9 @@ packages:
   - pkg:pypi/caproto?source=hash-mapping
   size: 280352
   timestamp: 1770670039751
-- pypi: git+https://github.com/nsls2/cditools?rev=main#bde88fd59e62616d31f2eb3f9ca4424dd1bd1891
+- pypi: git+https://github.com/nsls2/cditools?rev=main#f1c39d9ca68a378591ee0b8daf61d561d04d3ba8
   name: cditools
-  version: 0.1.1.dev102+gbde88fd59
+  version: 0.1.1.dev115+gf1c39d9ca
   requires_dist:
   - ophyd
   - ophyd-async[ca]>=0.19
@@ -18436,19 +18436,18 @@ packages:
   license: MIT
   size: 9342178
   timestamp: 1782428525856
-- conda: https://conda.anaconda.org/conda-forge/osx-64/ruff-0.15.19-h1ddadc8_0.conda
+- conda: https://conda.anaconda.org/conda-forge/osx-64/ruff-0.15.20-h1ddadc8_0.conda
   noarch: python
-  sha256: 1248df0118db9364dd64168744e5243d17f8775addc2f02ee518ed6acd651d9e
-  md5: bf898fc3e2352684937ba5f37d7f73c2
+  sha256: c09f4f7cb6f116fe2c37b6fe90e234beab754f223e11e7368e272fde890d7bac
+  md5: 4abaf1414e448ab88712f10a67610410
   depends:
   - python
   - __osx >=11.0
   constrains:
   - __osx >=10.13
   license: MIT
-  license_family: MIT
-  size: 9448616
-  timestamp: 1782288855028
+  size: 9318935
+  timestamp: 1782428757092
 - conda: https://conda.anaconda.org/conda-forge/osx-arm64/ruff-0.15.19-h80928e0_0.conda
   noarch: python
   sha256: 7916eb37206fe9726db28f722f14fe2da5e64b68b3747ae5bf92a9df6245c79f
