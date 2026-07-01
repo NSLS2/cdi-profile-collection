@@ -1,6 +1,6 @@
-from cditools.screens import StandardProsilicaCam, StandardScreen, set_roiN_kinds
+print(f"Loading {__file__!r} ...")
 
-print("LOADING 18")
+from cditools.screens import StandardProsilicaCam, StandardScreen, set_roiN_kinds
 
 try:
     from cditools.screens import setup_centroids
