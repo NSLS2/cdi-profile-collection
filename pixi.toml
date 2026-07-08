@@ -1,11 +1,9 @@
 [workspace]
 channels = ["conda-forge"]
 name = "cdi-profile-collection"
-platforms = ["linux-64", "osx-64", "osx-arm64"]
+platforms = [{platform = "linux-64", glibc = "2.17"}, "osx-64", "osx-arm64"]
 version = "2026.2.0"
 
-[system-requirements]
-libc = "2.17"
 
 [activation.env]
 OPHYD_ASYNC_PRESERVE_DETECTOR_STATE = "YES"
