@@ -70,8 +70,8 @@ with init_devices():
         adcore.ADWriterFactory.hdf(pp, writer_suffix="HDF1:"),
         name="cam-10",
         )
-    cam15 = advimba.VimbaDetector(
-        "XF:09IDC-BI{Cam:15}",
-        adcore.ADWriterFactory.hdf(pp, writer_suffix="HDF1:"),
-        name="cam-15",
-        )
+    # cam15 = advimba.VimbaDetector(
+    #     "XF:09IDC-BI{Cam:15}",
+    #     adcore.ADWriterFactory.hdf(pp, writer_suffix="HDF1:"),
+    #     name="cam-15",
+    #     )
