@@ -1,5 +1,4 @@
-import time
-from ophyd import Component as Cpt, EpicsSignal, EpicsSignalRO, Signal
+from ophyd import Component as Cpt, EpicsSignalRO
 from ophyd.device import Device
 
 print("LOADING 31")
