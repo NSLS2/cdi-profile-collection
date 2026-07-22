@@ -37,7 +37,7 @@ with init_devices():
     cam4 = advimba.VimbaDetector(
         "XF:09IDA-BI{HPM-Cam:4}",
         adcore.ADWriterFactory.hdf(pp, writer_suffix="HDF1:"),
-        name="cam-5",
+        name="cam-4",
     )
     cam5 = advimba.VimbaDetector(
         "XF:09IDA-BI{DM:2-Cam:5}",
