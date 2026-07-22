@@ -7,6 +7,7 @@ from nslsii.ophyd_async.providers import NSLS2PathProvider
 from ophyd_async.core import SignalR, init_devices
 from ophyd_async.epics import adcore, advimba
 from ophyd_async.epics.core import stop_busy_record
+from ophyd_async.epics.adcore import ADState
 
 import asyncio
 
@@ -15,21 +16,32 @@ print("LOADING 30")
 pp = NSLS2PathProvider(RE.md)  # noqa: F821
 
 
-# TODO - move to cditools / nslsii
 class VimbaAcquireLogic(advimba.ADAcquireLogic):
 
     async def ensure_ready(self):
+        detector_state = await self.driver.detector_state.get_value()
+        self._cached_acquire_state = detector_state == ADState.ACQUIRE
         self._cached_trigger_mode = await self.driver.trigger_mode.get_value()
+        self._cached_image_mode = await self.driver.image_mode.get_value()
+
         await stop_busy_record(self.driver.acquire)
 
     async def ensure_stopped(self):
-        if self._cached_trigger_mode is not None:
-            await self.driver.trigger_mode.set(self._cached_trigger_mode)
-        self._cached_trigger_mode = None
         await stop_busy_record(self.driver.acquire)
 
+        if self._cached_trigger_mode is not None:
+            await self.driver.trigger_mode.set(self._cached_trigger_mode)
+        if self._cached_image_mode is not None:
+            await self.driver.image_mode.set(self._cached_image_mode)
+        self._cached_trigger_mode = None
+        self._cached_image_mode = None
 
-# TODO - rename and move to cditools / nslsii / ophyd-async
+        if self._cached_acquire_state is not None:
+            await self.driver.acquire.set(self._cached_acquire_state)
+        self._cached_acquire_state = None
+
+
+# TODO - move to ophyd-async
 class TmpAdvimba(advimba.VimbaDetector):
 
     def __init__(
