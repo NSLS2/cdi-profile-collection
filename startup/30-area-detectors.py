@@ -1,32 +1,36 @@
+from typing import Annotated as A
 from typing import Sequence
 
 from cditools.eiger_async import EigerDetector
 from cditools.merlin_async import MerlinDetector
 from nslsii.ophyd_async.providers import NSLS2PathProvider
-
-from ophyd_async.core import SignalR, init_devices
+from ophyd_async.core import SignalR, SignalRW, init_devices
 from ophyd_async.epics import adcore, advimba
-from ophyd_async.epics.core import stop_busy_record
-from ophyd_async.epics.adcore import ADState
-
-import asyncio
+from ophyd_async.epics.adcore import ADAcquireLogic, ADState, AreaDetector
+from ophyd_async.epics.core import EpicsOptions, PvSuffix, stop_busy_record
 
 print("LOADING 30")
 
 pp = NSLS2PathProvider(RE.md)  # noqa: F821
 
 
-class VimbaAcquireLogic(advimba.ADAcquireLogic):
+class CustomVimbaDriverIO(advimba.VimbaDriverIO):
+    """FIXME: turn off put_completion for `acquire` PV"""
 
+    acquire: A[SignalRW[bool], PvSuffix.rbv("Acquire"), EpicsOptions(wait=False)]
+
+
+class VimbaAcquireLogic(ADAcquireLogic):
     async def ensure_ready(self):
         detector_state = await self.driver.detector_state.get_value()
-        self._cached_acquire_state = detector_state == ADState.ACQUIRE
+        self._cached_acquire_state = detector_state != ADState.IDLE
         self._cached_trigger_mode = await self.driver.trigger_mode.get_value()
         self._cached_image_mode = await self.driver.image_mode.get_value()
 
         await stop_busy_record(self.driver.acquire)
 
     async def ensure_stopped(self):
+        print()
         await stop_busy_record(self.driver.acquire)
 
         if self._cached_trigger_mode is not None:
@@ -42,19 +46,18 @@ class VimbaAcquireLogic(advimba.ADAcquireLogic):
 
 
 # TODO - move to ophyd-async
-class TmpAdvimba(advimba.VimbaDetector):
-
+class TmpAdvimba(AreaDetector[CustomVimbaDriverIO]):
     def __init__(
-            self,
-            prefix: str,
-            *writer_factories: advimba.ADWriterFactory,
-            driver_suffix="cam1:",
-            override_deadtime: float | None = None,
-            plugins: dict[str, advimba.NDPluginBaseIO] | None = None,
-            config_sigs: Sequence[SignalR] = (),
-            name: str = "",
-        ):
-        driver = advimba.VimbaDriverIO(prefix + driver_suffix)
+        self,
+        prefix: str,
+        *writer_factories: advimba.ADWriterFactory,
+        driver_suffix="cam1:",
+        override_deadtime: float | None = None,
+        plugins: dict[str, advimba.NDPluginBaseIO] | None = None,
+        config_sigs: Sequence[SignalR] = (),
+        name: str = "",
+    ):
+        driver = CustomVimbaDriverIO(prefix + driver_suffix)
         super().__init__(
             driver,
             prefix,
@@ -65,6 +68,7 @@ class TmpAdvimba(advimba.VimbaDetector):
             config_sigs=config_sigs,
             name=name,
         )
+
 
 with init_devices():
     eiger = EigerDetector(
