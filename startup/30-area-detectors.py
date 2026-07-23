@@ -1,17 +1,9 @@
-from typing import Annotated as A
 from typing import Sequence
 
 from cditools.eiger_async import EigerDetector
 from cditools.merlin_async import MerlinDetector
 from event_model import DataKey
 from nslsii.ophyd_async.providers import NSLS2PathProvider
-from ophyd_async.core import (
-    SignalR,
-    SignalRW,
-    StandardReadable,
-    StandardReadableFormat,
-    init_devices,
-)
 from ophyd_async.core._utils import merge_gathered_dicts
 from ophyd_async.epics import adcore, advimba
 from ophyd_async.epics.adcore import (
@@ -25,16 +17,20 @@ from ophyd_async.epics.adcore import (
     PluginSignalDataLogic,
 )
 from ophyd_async.epics.core import EpicsDevice, EpicsOptions, PvSuffix, stop_busy_record
+from ophyd_async.core import (
+    SignalR,
+    StandardReadable,
+    StandardReadableFormat,
+    init_devices,
+    set_and_wait_for_other_value
+)
+from ophyd_async.epics import adcore, advimba
+from ophyd_async.epics.adcore import ADAcquireLogic, ADState, AreaDetector
+from ophyd_async.epics.core import stop_busy_record
 
 print("LOADING 30")
 
 pp = NSLS2PathProvider(RE.md)  # noqa: F821
-
-
-class CustomVimbaDriverIO(advimba.VimbaDriverIO):
-    """FIXME: turn off put_completion for `acquire` PV"""
-
-    acquire: A[SignalRW[bool], PvSuffix.rbv("Acquire"), EpicsOptions(wait=False)]
 
 
 class NDCentroid(StandardReadable, EpicsDevice):
@@ -71,7 +67,7 @@ class EnrichedStats(NDStatsIO, StandardReadable):
 
 
 class VimbaAcquireLogic(ADAcquireLogic):
-    driver: CustomVimbaDriverIO
+    driver: advimba.VimbaDriverIO
 
     async def ensure_ready(self):
         detector_state = await self.driver.detector_state.get_value()
@@ -92,14 +88,20 @@ class VimbaAcquireLogic(ADAcquireLogic):
         self._cached_image_mode = None
 
         if self._cached_acquire_state is not None:
-            await self.driver.acquire.set(self._cached_acquire_state)
+            # Must be used like this to avoid the busy record
+            # that may never give set completion
+            await set_and_wait_for_other_value(
+                self.driver.acquire,
+                self._cached_acquire_state,
+                self.driver.acquire,
+                self._cached_acquire_state,
+                wait_for_set_completion=False,
+            )
         self._cached_acquire_state = None
 
 
 # TODO - move to ophyd-async
-class TmpAdvimba(AreaDetector[CustomVimbaDriverIO]):
-    stats1: EnrichedStats
-
+class TmpAdvimba(AreaDetector[advimba.VimbaDriverIO]):
     def __init__(
         self,
         prefix: str,
@@ -111,8 +113,7 @@ class TmpAdvimba(AreaDetector[CustomVimbaDriverIO]):
         name: str = "",
     ):
         plugins = plugins or {}
-
-        driver = CustomVimbaDriverIO(prefix + driver_suffix)
+        driver = advimba.VimbaDriverIO(prefix + driver_suffix)
         super().__init__(
             driver,
             prefix,
