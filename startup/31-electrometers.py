@@ -1,4 +1,5 @@
-from ophyd import Component as Cpt, EpicsSignalRO
+from ophyd import Component as Cpt
+from ophyd import EpicsSignalRO
 from ophyd.device import Device
 
 print("LOADING 31")

@@ -1,23 +1,16 @@
-from typing import Annotated as A
 from typing import Sequence
 
 from cditools.eiger_async import EigerDetector
 from cditools.merlin_async import MerlinDetector
 from nslsii.ophyd_async.providers import NSLS2PathProvider
-from ophyd_async.core import SignalR, SignalRW, init_devices
+from ophyd_async.core import SignalR, init_devices, set_and_wait_for_other_value
 from ophyd_async.epics import adcore, advimba
 from ophyd_async.epics.adcore import ADAcquireLogic, ADState, AreaDetector
-from ophyd_async.epics.core import EpicsOptions, PvSuffix, stop_busy_record
+from ophyd_async.epics.core import stop_busy_record
 
 print("LOADING 30")
 
 pp = NSLS2PathProvider(RE.md)  # noqa: F821
-
-
-class CustomVimbaDriverIO(advimba.VimbaDriverIO):
-    """FIXME: turn off put_completion for `acquire` PV"""
-
-    acquire: A[SignalRW[bool], PvSuffix.rbv("Acquire"), EpicsOptions(wait=False)]
 
 
 class VimbaAcquireLogic(ADAcquireLogic):
@@ -41,12 +34,20 @@ class VimbaAcquireLogic(ADAcquireLogic):
         self._cached_image_mode = None
 
         if self._cached_acquire_state is not None:
-            await self.driver.acquire.set(self._cached_acquire_state)
+            # Must be used like this to avoid the busy record
+            # that may never give set completion
+            await set_and_wait_for_other_value(
+                self.driver.acquire,
+                self._cached_acquire_state,
+                self.driver.acquire,
+                self._cached_acquire_state,
+                wait_for_set_completion=False,
+            )
         self._cached_acquire_state = None
 
 
 # TODO - move to ophyd-async
-class TmpAdvimba(AreaDetector[CustomVimbaDriverIO]):
+class TmpAdvimba(AreaDetector[advimba.VimbaDriverIO]):
     def __init__(
         self,
         prefix: str,
@@ -57,7 +58,7 @@ class TmpAdvimba(AreaDetector[CustomVimbaDriverIO]):
         config_sigs: Sequence[SignalR] = (),
         name: str = "",
     ):
-        driver = CustomVimbaDriverIO(prefix + driver_suffix)
+        driver = advimba.VimbaDriverIO(prefix + driver_suffix)
         super().__init__(
             driver,
             prefix,
