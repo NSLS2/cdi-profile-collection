@@ -30,7 +30,6 @@ class VimbaAcquireLogic(ADAcquireLogic):
         await stop_busy_record(self.driver.acquire)
 
     async def ensure_stopped(self):
-        print()
         await stop_busy_record(self.driver.acquire)
 
         if self._cached_trigger_mode is not None:
