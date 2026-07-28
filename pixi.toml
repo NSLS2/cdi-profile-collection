@@ -3,8 +3,12 @@ channels = ["conda-forge"]
 name = "cdi-profile-collection"
 platforms = [{ platform = "linux-64", glibc = "2.17" }, "osx-64", "osx-arm64"]
 version = "2026.2.0"
+<<<<<<< HEAD
 requires-pixi = ">=0.82.1"
 
+=======
+preview = ["pixi-build"]
+>>>>>>> 46d7c4d (ENH: use pixi-build to get cditools)
 
 [activation.env]
 OPHYD_ASYNC_PRESERVE_DETECTOR_STATE = "YES"
@@ -37,12 +41,12 @@ xrayutilities = ">=1.7.12,<2"
 [feature.profile.target.linux-64.dependencies]
 blosc-hdf5-plugin = ">=1.0.1,<2"
 epicscorelibs = ">=7.0.7.99.1.1,<8"
-ophyd-async = ">=0.19.4"
+ophyd-async = ">=0.20.1,<0.21"
 
 [feature.profile.pypi-dependencies]
 # TODO get this onto conda-forge
 # cditools = { git = "https://github.com/nsls2/cditools", rev="main" }
-cditools = { git = "https://github.com/nsls2/cditools", rev = "debug-eiger-acquire" }
+cditools = { git = "https://github.com/nsls2/cditools", rev="enh/pixi-build" }
 # cditools = { path = "../../source/nsls2/cditools", editable = true }
 pvxslibs = ">=1.3.2, <2"
 
