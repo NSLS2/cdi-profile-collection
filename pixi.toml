@@ -46,7 +46,7 @@ ophyd-async = ">=0.20.1,<0.21"
 [feature.profile.pypi-dependencies]
 # TODO get this onto conda-forge
 # cditools = { git = "https://github.com/nsls2/cditools", rev="main" }
-cditools = { git = "https://github.com/nsls2/cditools", rev="enh/pixi-build" }
+cditools = { git = "https://github.com/nsls2/cditools", rev="enh/hkl" }
 # cditools = { path = "../../source/nsls2/cditools", editable = true }
 pvxslibs = ">=1.3.2, <2"
 
