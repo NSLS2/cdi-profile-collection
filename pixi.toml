@@ -3,7 +3,7 @@ channels = ["conda-forge"]
 name = "cdi-profile-collection"
 platforms = [{platform = "linux-64", glibc = "2.17"}, "osx-64", "osx-arm64"]
 version = "2026.2.0"
-
+preview = ["pixi-build"]
 
 [activation.env]
 OPHYD_ASYNC_PRESERVE_DETECTOR_STATE = "YES"
@@ -33,12 +33,11 @@ bluesky-tiled-plugins = ">=2.0.9,<3"
 [feature.profile.target.linux-64.dependencies]
 blosc-hdf5-plugin = ">=1.0.1,<2"
 epicscorelibs = ">=7.0.7.99.1.1,<8"
-ophyd-async  = ">=0.19.4"
-
-[feature.profile.pypi-dependencies]
-# TODO get this onto conda-forge
-cditools = { git = "https://github.com/nsls2/cditools", rev="main" }
-
+ophyd-async = ">=0.20.1,<0.21"
+cditools = {
+         git = "https://github.com/nsls2/cditools",
+         rev="enh/pixi-build"
+         }
 
 
 [feature.qs.dependencies]
