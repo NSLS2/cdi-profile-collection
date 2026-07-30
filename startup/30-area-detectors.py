@@ -1,5 +1,5 @@
+from collections.abc import Sequence
 from typing import Annotated as A
-from typing import Sequence
 
 from cditools.eiger_async import EigerDetector
 from cditools.merlin_async import MerlinDetector
