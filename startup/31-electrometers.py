@@ -1,4 +1,5 @@
-from ophyd import Component as Cpt, EpicsSignalRO
+from ophyd import Component as Cpt
+from ophyd import EpicsSignalRO
 from ophyd.device import Device
 
 print("LOADING 31")
@@ -44,6 +45,14 @@ class I400(Device):
     amp_range = Cpt(EpicsSignalRO, ":RANGE_MON", kind="normal")
 
 
+class F460(Device):
+    # CDI uses this as a single-channel read-out for the foil intensity monitor
+    channel1 = Cpt(EpicsSignalRO, "Cur:I0-I", kind="hinted")
+    channel2 = Cpt(EpicsSignalRO, "Cur:I1-I", kind="hinted")
+    channel3 = Cpt(EpicsSignalRO, "Cur:I2-I", kind="normal")
+    channel4 = Cpt(EpicsSignalRO, "Cur:I3-I", kind="normal")
+
+
 ###############################################################################
 # devices                                                                     #
 ###############################################################################
@@ -51,7 +60,7 @@ class I400(Device):
 i400 = I400("XF:09IDA-BI{i400:1}", name="fmon")
 
 i404 = I404("XF:09IDB-BI{i404:1}", name="qbpm")
-
+f460 = F460("XF:09IDC-BI{f460:1}", name="f460")
 # the name of tetra changed 18 June 2026 following the decision to use it
 # for the diamond beam position monitor rather than the ion chambers.
 
