@@ -1,7 +1,6 @@
 from cditools.screens import StandardProsilicaCam, StandardScreen, set_roiN_kinds
 
-print("LOADING 18")
-
+print(f"Loading {__file__!r} ...")
 try:
     from cditools.screens import setup_centroids
 except ImportError:
@@ -43,7 +42,10 @@ class MaskedCam(StandardProsilicaCam):
             self.roistat1: self.cam,
         }
 
+
 cam_C15 = set_roiN_kinds(MaskedCam("XF:09IDC-BI{Cam:15}", name="cam_C15"))
+cam_C15.stats1.kind = "normal"
+cam_C15.stats1.mean_value.kind = "hinted"
 
 vpm_fs = StandardScreen("XF:09IDA-OP:1{FS:VPM-Ax:Y}Mtr", name="screen_vpm")
 hpm_fs = StandardScreen("XF:09IDA-OP:1{FS:HPM-Ax:Y}Mtr", name="screen_hpm")

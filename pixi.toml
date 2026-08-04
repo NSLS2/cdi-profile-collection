@@ -28,6 +28,7 @@ databroker = "==2.0.0b68"
 p4p = ">=4.2.0,<5"
 pip = ">=25.2,<26"
 bluesky-tiled-plugins = "==2.0.2"
+xrayutilities = ">=1.7.12,<2"
 
 # Linux-only dependencies (EPICS and HDF5 plugins may not be available on macOS)
 [feature.profile.target.linux-64.dependencies]
