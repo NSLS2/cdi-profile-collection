@@ -19,7 +19,7 @@ ophyd = ">=1.11.2,<2"
 pyepics = "*"
 python = ">=3.12,<3.13"
 semver = ">=3.0.4,<4"
-tiled-client = ">=0.2.14,<0.3"
+tiled-client = ">=0.2.17,<0.3"
 # needed until we get ophyd-async packaged
 colorlog = ">=6.9.0,<7"
 pydantic-numpy = "*"
