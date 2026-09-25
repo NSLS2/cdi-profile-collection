@@ -8,6 +8,7 @@ from bluesky.preprocessors import SupplementalData
 
 import numpy as np
 from scipy.interpolate import CubicSpline
+import asyncio
 
 #use BPM as monitor for now.  add ion chambers later
 sd = SupplementalData(baseline=None,monitors=[tetra.posX,tetra.posY,tetra.sumI],flyers=None)
@@ -55,21 +56,12 @@ def make_energy_lists(E1,E2,n):
     return gap, bragg
 
 vpm_x = EpicsMotor("XF:09IDA-OP:1{Mir:VPM-Ax:TX}Mtr",name='vpm_x')
-#class IVUGap(PVPositioner):
-#   setpoint = Cpt(EpicsSignal,"SR:C09-ID:G1{IVU18:1-CS2:Gap}-Mtr-SP") 
-#   readback = Cpt(EpicsSignalRO,"SR:C09-ID:G1{IVU18:1-CS2:Gap}-Mtr.RBV")
-#   actuate = Cpt(EpicsSignal,"SR:C09-ID:G1{IVU18:1-CS2:Gap}-Mtr-Go")
-#   done = Cpt(EpicsSignalRO, "SR:C09-ID:G1{IVU18:1-CS2:Gap}-Mtr.DMOV")
-#   stp = Cpt(EpicsSignal,"SR:C09-ID:G1{IVU18:1-CS2:Gap}-Mtr.STOP")
 
-#class InsertionDevice(Device):
-#    gap = Cpt(IVUGap, name='')
-#
-#    def set(self, *args, **kwargs):
-#        return self.gap.set(*args, **kwargs)
-#
-#    def stop(self, *, success=False):
-#        return self.gap.stp(success=success)
-#
-#
-#ivu = InsertionDevice('SR:C09-ID:G1{IVU18:1', name='ivu')
+async def co_get_T():
+    T = await bank.read()
+    return T['bank-total_transmission']['value']
+
+def get_T():
+	t = asyncio.run(co_get_T())
+	print(f"Current transmission is {t:0.3f}.")
+	return t
