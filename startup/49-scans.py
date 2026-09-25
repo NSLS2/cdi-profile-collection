@@ -13,7 +13,7 @@ from ophyd.sim import det, motor, signal
 #these are the helper scan plans that help to ensure that users can rountinely
 #collect data at CDI.
 
-#list of devices that comprise an import snapshot of the state that the
+#list of devices that comprise an important snapshot of the state that the
 #instrument was in when the scan was launched
 default_devices_v1=[gon.align.x,gon.align.y,gon.align.z,gon.align.rx,gon.align.rz,
     gon.sam.t_sm.lx,gon.sam.t_sm.lz,gon.sam.t_lg.lx,gon.sam.t_lg.lz,
@@ -49,7 +49,7 @@ def scan_abs_mu(start,stop,num,*,mot=gon.sam.ry,det=[eiger],
     else:
         _md = dict(md)
     
-    #record the starting values of the scanned motor and the transmision
+    #record the starting value of the scanned motor and the transmision
     mot_val = yield from bps.rd(mot)
     T = yield from bps.rd(bank)
     _md.update({
@@ -58,7 +58,7 @@ def scan_abs_mu(start,stop,num,*,mot=gon.sam.ry,det=[eiger],
             'transmission': trunc(T)
             }
     })
-    #record standard motor positions
+    #record standard device readback 
     for i in state_devices:
         mname = i.name
         mval = yield from bps.rd(i)
