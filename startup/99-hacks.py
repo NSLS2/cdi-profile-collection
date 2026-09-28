@@ -1,7 +1,7 @@
 print(f'LOADING {__file__}...')
 
 from ophyd import (PVPositioner, Component as Cpt, EpicsSignal, EpicsSignalRO,
-        Signal, EpicsMotor)
+        Signal, EpicsMotor, DerivedSignal)
 from ophyd.utils import ReadOnlyError
 
 from bluesky.preprocessors import SupplementalData
@@ -65,3 +65,45 @@ def get_T():
 	t = asyncio.run(co_get_T())
 	print(f"Current transmission is {t:0.3f}.")
 	return t
+
+#TDMS doesn't have an offset field in its EPICS implementation
+class OffsetTDMSSignal(DerivedSignal):
+    def __init__(self, *args, offset=0., **kwargs):
+        self._offset = offset
+        super().__init__(*args,**kwargs)
+
+    @property
+    def offset(self):
+        return self._offset
+
+    @offset.setter
+    def offset(self, val):
+        self._offset = val
+
+#don't want a forward for the TDMS at this point
+#    def forward(self,value):
+#        return value - self._offset
+
+    def inverse(self, value):
+        if value is None:
+            return None
+        return value + self._offset
+
+class OffsetTDMSDevice(Device):
+    dial_val = Cpt(EpicsSignal, 'MTR:RBV-RB0', kind='normal')
+    user_val = Cpt(OffsetTDMSSignal, derived_from='dial_val', offset=0., kind='hinted')
+
+tdms_arm1_ay = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:A1-Ax:AY}', name='arm1_ay')
+tdms_arm1_ay.user_val.offset = -11.74
+tdms_arm2_ay = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:A2-Ax:AY}', name='arm2_ay')
+tdms_arm2_ay.user_val.offset = -21. 
+
+tdms_arm1_tz = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:A1-Ax:TZ}', name='arm1_tz')
+tdms_arm1_tz.user_val.offset = -0. 
+tdms_arm2_tz = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:A2-Ax:TZ}', name='arm2_tz')
+tdms_arm2_tz.user_val.offset = -0. 
+
+tdms_arm1_ty = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:T1-Ax:TY}', name='arm1_ty')
+tdms_arm1_ty.user_val.offset = -0. 
+tdms_arm2_ty = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:T2-Ax:TY}', name='arm2_ty')
+tdms_arm2_ty.user_val.offset = -0. 

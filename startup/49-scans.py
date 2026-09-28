@@ -22,10 +22,42 @@ default_devices_v1=[gon.align.x,gon.align.y,gon.align.z,gon.align.rx,gon.align.r
     tetra.posX, tetra.posY, ring_current, energy.energy,
     T1.tz,T1.ay,T1.ty,T1.ax,T2.tz,T2.ay,T2.ty,T2.ax]
 
+# a generic wrapper for bp.scan that includes our custom metadata
+def CDI_scan(det,mot,start,stop,num,*,state_devices=default_devices_v1,md=None):
+    """
+    Wrapper for bp.scan that follows the same usage patterns while adding
+    CDI-specific metadata.
+    
+    RE(CDI_scan(det, mot, start, stop, num)
+   
+    """
+    if md is None:
+        _md = {}
+    else:
+        _md = dict(md)
+    
+    #record the starting value of the scanned motor and the transmision
+    mot_val = yield from bps.rd(mot)
+    T = yield from bps.rd(bank)
+    _md.update({
+        'plan_name':'CDI_scan_v1',
+        'instr_state':{'start_pos':trunc(mot_val),
+            'transmission': trunc(T)
+            }
+    })
+    #record standard device readback 
+    for i in state_devices:
+        mname = i.name
+        mval = yield from bps.rd(i)
+        _md['instr_state'].update({mname:trunc(mval)})
+
+
+    return (yield from bp.scan(det,mot,start,stop,num,md=_md))
+
 #the two primary data collection modes are to rock \mu or scan the energy
 
 def scan_abs_mu(start,stop,num,*,mot=gon.sam.ry,det=[eiger],
-        state_devices=default_devices_v1,md=None):
+        state_devices=default_devices_v1,exp=None,md=None):
     """
     This scans rocks the angle about the vertical in the Lab frame and collects
     2D diffraction patterns at each point on the curve.  It wraps a standard 
@@ -43,6 +75,8 @@ def scan_abs_mu(start,stop,num,*,mot=gon.sam.ry,det=[eiger],
     state_devices == import devices for defining initial and final state
 
     """
+    #the difference between exposure time and frame period
+    dt = 0.0001
     #make a dict or copy the metadata for new metadata
     if md is None:
         _md = {}
@@ -65,8 +99,55 @@ def scan_abs_mu(start,stop,num,*,mot=gon.sam.ry,det=[eiger],
         _md['instr_state'].update({mname:trunc(mval)})
 
 
-    return (yield from bp.scan(det,mot,start,stop,num,md=_md))
+    #custom exposure time
+    if exp is not None:
+        old_period = [None]*len(det)
+        old_exposure = [None]*len(det)
+        for i in range(len(det)):
+            if det[i].driver.name == 'eiger2-1-driver':
+                old_period[i] = yield from bps.rd(det[i].driver.acquire_period)
+                old_exposure[i] = yield from bps.rd(det[i].driver.acquire_time)
+                yield from bps.mv(det[i].driver.acquire_period, exp+dt)
+                yield from bps.mv(det[i].driver.acquire_time, exp)
+            elif det[i].driver.name == 'merlines-1-driver':
+        #the merlin IOC can't handle changing the exposure time without
+        #stopping acquisition...maybe we can stop it, set the exposure time
+        #and then start acquisition in the finally condition below, but maybe
+        #it's not good to evade the stage/unstage behavior surrounding the scan
+        #in that way...
+                print('Exposure time setting on the Merlin is not supported.')
+            else:
+                print('Exposure time setting not supported for some detectors.')
+
+    try:
+        yield from bp.scan(det,mot,start,stop,num,md=_md)
+    finally:
+        if exp is not None:
+            for i in range(len(det)):
+                if det[i].driver.name == 'eiger2-1-driver':
+                    if exp>old_exposure[i]:
+                        yield from bps.mv(det[i].driver.acquire_period, old_period[i])
+                        yield from bps.mv(det[i].driver.acquire_time, old_exposure[i])
+                    else:
+                        yield from bps.mv(det[i].driver.acquire_time, old_exposure[i])
+                        yield from bps.mv(det[i].driver.acquire_period, old_period[i])
+                elif det[i].driver.name == 'merlines-1-driver':
+                    continue
+                else:
+                    continue
+
+    return True
 
 
 def scan_E():
+
+    return True
+
+
+def scan_E():
+    """
+    Energy scan to be implemented.
+    """
+    print("This scan intentionally left <null>.")
+    
     return True
