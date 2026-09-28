@@ -7,8 +7,8 @@ import bluesky.plan_stubs as bps
 def shuttergenerator(shutter, value):
     return (yield from bpp.rewindable_wrapper(bps.mv(shutter, value), False))
 
-#ring current suspender, which is usually faster than FE shutter
-#when the ring dumps
+#ring current suspender, which is usually more reliable than FE shutter
+#status when the ring dumps
 susp_rc = SuspendFloor(ring_current, 200, resume_thresh = 400, sleep=60,
         pre_plan=list(shuttergenerator(shut_b, 'Close')),
         post_plan=list(shuttergenerator(shut_b, 'Open')))
@@ -23,7 +23,7 @@ susp_shut_b = SuspendBoolHigh(EpicsSignalRO(shut_b.status.pvname,
 
 
 # install
-#RE.install_suspender(susp_rc)
-#RE.install_suspender(susp_shut_fe)
-#RE.install_suspender(susp_shut_a)
-#RE.install_suspender(susp_shut_b)
+RE.install_suspender(susp_rc)
+RE.install_suspender(susp_shut_fe)
+RE.install_suspender(susp_shut_a)
+RE.install_suspender(susp_shut_b)
