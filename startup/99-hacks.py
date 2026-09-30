@@ -11,7 +11,7 @@ from scipy.interpolate import CubicSpline
 import asyncio
 
 #use BPM as monitor for now.  add ion chambers later
-sd = SupplementalData(baseline=None,monitors=[tetra.posX,tetra.posY,tetra.sumI],flyers=None)
+sd = SupplementalData(baseline=None,monitors=[tetra.posX,tetra.posY,tetra.sumI,f460.channel2],flyers=None)
 RE.preprocessors.append(sd)
 
 gap_ev = [
