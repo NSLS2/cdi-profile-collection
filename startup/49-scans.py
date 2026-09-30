@@ -78,9 +78,9 @@ def scan_abs_mu(start,stop,num,*,mot=None,det=None,
     #the difference between exposure time and frame period
     dt = 0.0001
     #passing ophyd objects as default values seems buggy
-    if det=None:
+    if det==None:
         det=[eiger]
-    if mot=None:
+    if mot==None:
         mot=gon.sam.ry
 
     #make a dict or copy the metadata for new metadata
