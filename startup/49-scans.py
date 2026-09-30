@@ -56,7 +56,7 @@ def CDI_scan(det,mot,start,stop,num,*,state_devices=default_devices_v1,md=None):
 
 #the two primary data collection modes are to rock \mu or scan the energy
 
-def scan_abs_mu(start,stop,num,*,mot=gon.sam.ry,det=[eiger],
+def scan_abs_mu(start,stop,num,*,mot=None,det=None,
         state_devices=default_devices_v1,exp=None,md=None):
     """
     This scans rocks the angle about the vertical in the Lab frame and collects
@@ -77,6 +77,12 @@ def scan_abs_mu(start,stop,num,*,mot=gon.sam.ry,det=[eiger],
     """
     #the difference between exposure time and frame period
     dt = 0.0001
+    #passing ophyd objects as default values seems buggy
+    if det=None:
+        det=[eiger]
+    if mot=None:
+        mot=gon.sam.ry
+
     #make a dict or copy the metadata for new metadata
     if md is None:
         _md = {}
