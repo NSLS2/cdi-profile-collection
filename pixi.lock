@@ -758,7 +758,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zlib-ng-2.3.3-h8bce59a_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstandard-0.25.0-py312h01f6755_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstd-1.5.7-h3eecb57_6.conda
-      - pypi: git+https://github.com/nsls2/cditools?rev=main#2f8da331ad1956924a5e55cd3ab9e091d53b29a2
+      - pypi: git+https://github.com/nsls2/cditools?rev=debug-eiger-acquire#d9bc7e4dc52b49dbc2adc8c709c5f580120f546f
       - pypi: https://files.pythonhosted.org/packages/0e/fd/aad3337b0d14352589af31719112d25f0f27958547c81ed0dc01301a1b3a/ophyd_async-0.21.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/10/fc/27b418beb7e7598783fe9a9eea830144b9e1a130c338d7da3ecd354447ad/epicscorelibs-7.0.10.99.0.1-cp312-cp312-macosx_11_0_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/51/6b/3feec8016ab2263946c4480510d2d1a7924a5400c455974a7a0344bb4304/setuptools_dso-2.12.3-py2.py3-none-any.whl
@@ -1294,7 +1294,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zlib-ng-2.3.3-hed4e4f5_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstandard-0.25.0-py312h37e1c23_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hbf9d68e_6.conda
-      - pypi: git+https://github.com/nsls2/cditools?rev=main#2f8da331ad1956924a5e55cd3ab9e091d53b29a2
+      - pypi: git+https://github.com/nsls2/cditools?rev=debug-eiger-acquire#d9bc7e4dc52b49dbc2adc8c709c5f580120f546f
       - pypi: https://files.pythonhosted.org/packages/0e/fd/aad3337b0d14352589af31719112d25f0f27958547c81ed0dc01301a1b3a/ophyd_async-0.21.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/10/fc/27b418beb7e7598783fe9a9eea830144b9e1a130c338d7da3ecd354447ad/epicscorelibs-7.0.10.99.0.1-cp312-cp312-macosx_11_0_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/51/6b/3feec8016ab2263946c4480510d2d1a7924a5400c455974a7a0344bb4304/setuptools_dso-2.12.3-py2.py3-none-any.whl
@@ -1916,7 +1916,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zarr-3.3.0-pyhc364b38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.0-pyhcf101f3_0.conda
-      - pypi: git+https://github.com/nsls2/cditools?rev=main#2f8da331ad1956924a5e55cd3ab9e091d53b29a2
+      - pypi: git+https://github.com/nsls2/cditools?rev=debug-eiger-acquire#d9bc7e4dc52b49dbc2adc8c709c5f580120f546f
       - pypi: https://files.pythonhosted.org/packages/67/d8/8af47ecca80c365d5ffcdce6fae78ec71921052189c1486ba9dbac7a36f4/pvxslibs-1.3.2-cp312-cp312-manylinux2014_x86_64.whl
   terminal:
     channels:
@@ -2456,7 +2456,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zlib-ng-2.3.3-h8bce59a_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstandard-0.25.0-py312h01f6755_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstd-1.5.7-h3eecb57_6.conda
-      - pypi: git+https://github.com/nsls2/cditools?rev=main#2f8da331ad1956924a5e55cd3ab9e091d53b29a2
+      - pypi: git+https://github.com/nsls2/cditools?rev=debug-eiger-acquire#d9bc7e4dc52b49dbc2adc8c709c5f580120f546f
       - pypi: https://files.pythonhosted.org/packages/0e/fd/aad3337b0d14352589af31719112d25f0f27958547c81ed0dc01301a1b3a/ophyd_async-0.21.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/10/fc/27b418beb7e7598783fe9a9eea830144b9e1a130c338d7da3ecd354447ad/epicscorelibs-7.0.10.99.0.1-cp312-cp312-macosx_11_0_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/51/6b/3feec8016ab2263946c4480510d2d1a7924a5400c455974a7a0344bb4304/setuptools_dso-2.12.3-py2.py3-none-any.whl
@@ -2994,7 +2994,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zlib-ng-2.3.3-hed4e4f5_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstandard-0.25.0-py312h37e1c23_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hbf9d68e_6.conda
-      - pypi: git+https://github.com/nsls2/cditools?rev=main#2f8da331ad1956924a5e55cd3ab9e091d53b29a2
+      - pypi: git+https://github.com/nsls2/cditools?rev=debug-eiger-acquire#d9bc7e4dc52b49dbc2adc8c709c5f580120f546f
       - pypi: https://files.pythonhosted.org/packages/0e/fd/aad3337b0d14352589af31719112d25f0f27958547c81ed0dc01301a1b3a/ophyd_async-0.21.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/10/fc/27b418beb7e7598783fe9a9eea830144b9e1a130c338d7da3ecd354447ad/epicscorelibs-7.0.10.99.0.1-cp312-cp312-macosx_11_0_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/51/6b/3feec8016ab2263946c4480510d2d1a7924a5400c455974a7a0344bb4304/setuptools_dso-2.12.3-py2.py3-none-any.whl
@@ -3619,7 +3619,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zarr-3.3.0-pyhc364b38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.0-pyhcf101f3_0.conda
-      - pypi: git+https://github.com/nsls2/cditools?rev=main#2f8da331ad1956924a5e55cd3ab9e091d53b29a2
+      - pypi: git+https://github.com/nsls2/cditools?rev=debug-eiger-acquire#d9bc7e4dc52b49dbc2adc8c709c5f580120f546f
       - pypi: https://files.pythonhosted.org/packages/67/d8/8af47ecca80c365d5ffcdce6fae78ec71921052189c1486ba9dbac7a36f4/pvxslibs-1.3.2-cp312-cp312-manylinux2014_x86_64.whl
 packages:
 - conda: https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda
@@ -13749,7 +13749,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/tiled?source=compressed-mapping
+  - pkg:pypi/tiled?source=hash-mapping
   run_exports: {}
   size: 1524743
   timestamp: 1787683660796
@@ -24054,43 +24054,15 @@ packages:
     - zstd >=1.5.7,<1.6.0a0
   size: 433413
   timestamp: 1764777166076
-- pypi: git+https://github.com/nsls2/cditools?rev=main#2f8da331ad1956924a5e55cd3ab9e091d53b29a2
+- pypi: git+https://github.com/nsls2/cditools?rev=debug-eiger-acquire#d9bc7e4dc52b49dbc2adc8c709c5f580120f546f
   name: cditools
-  version: 0.1.1.dev138+g2f8da331a
+  version: 0.1.1.dev165+gd9bc7e4dc
   requires_dist:
   - ophyd
-  - ophyd-async[ca]>=0.19
+  - ophyd-async[ca]>=0.21
   - h5py
   - xrayutilities>=1.7.12,<2
-  - entrypoints ; extra == 'test'
-  - pytest>=6 ; extra == 'test'
-  - pytest-cov>=3 ; extra == 'test'
-  - pytest-asyncio>=0.18 ; extra == 'test'
-  - caproto[standard]>=0.4.2rc1,!=1.2.0 ; extra == 'test'
-  - tiled[minimal-client] ; extra == 'test'
-  - tiled[minimal-server] ; extra == 'test'
-  - ophyd>=1.10.6 ; extra == 'test'
-  - pytest-watcher ; extra == 'test'
-  - caproto[standard]>=0.4.2rc1,!=1.2.0 ; extra == 'dev'
-  - pytest>=6 ; extra == 'dev'
-  - pytest-cov>=3 ; extra == 'dev'
-  - pytest-asyncio>=0.18 ; extra == 'dev'
-  - pandas ; extra == 'dev'
-  - pre-commit ; extra == 'dev'
-  - ipython ; extra == 'dev'
-  - ruff ; extra == 'dev'
-  - aioca ; extra == 'dev'
-  - tiled[minimal-client,server] ; extra == 'dev'
-  - pyright ; extra == 'dev'
-  - ophyd>=1.10.6 ; extra == 'dev'
-  - twine ; extra == 'dev'
-  - build ; extra == 'dev'
-  - sphinx>=7.0 ; extra == 'docs'
-  - myst-parser>=0.13 ; extra == 'docs'
-  - sphinx-copybutton ; extra == 'docs'
-  - sphinx-autodoc-typehints ; extra == 'docs'
-  - furo>=2023.8.17 ; extra == 'docs'
-  requires_python: '>=3.11'
+  requires_python: '>=3.12'
 - pypi: https://files.pythonhosted.org/packages/0e/fd/aad3337b0d14352589af31719112d25f0f27958547c81ed0dc01301a1b3a/ophyd_async-0.21.1-py3-none-any.whl
   name: ophyd-async
   version: 0.21.1
