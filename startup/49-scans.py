@@ -20,7 +20,9 @@ default_devices_v1=[gon.align.x,gon.align.y,gon.align.z,gon.align.rx,gon.align.r
     gon.sam.c_sm.lrx,gon.sam.c_sm.lrz,gon.sam.c_lg.lrx,gon.sam.c_lg.lrz,
     gon.sam.ly,dm4.bpm.x,dm4.bpm.y,
     tetra.posX, tetra.posY, ring_current, energy.energy,
-    T1.tz,T1.ay,T1.ty,T1.ax,T2.tz,T2.ay,T2.ty,T2.ax]
+    T1.tz,T1.ay,T1.ty,T1.tx,T1.ax,T2.tz,T2.ay,T2.ty,T2.tx,T2.ax,
+    tdms_arm1_tz, tdms_arm1_ty, tdms_arm1_tx, tdms_arm1_ay, tdms_arm1_ax,
+    tdms_arm2_tz, tdms_arm2_ty, tdms_arm2_tx, tdms_arm2_ay, tdms_arm2_ax]
 
 # a generic wrapper for bp.scan that includes our custom metadata
 def CDI_scan(det,mot,start,stop,num,*,state_devices=default_devices_v1,md=None):
@@ -57,7 +59,7 @@ def CDI_scan(det,mot,start,stop,num,*,state_devices=default_devices_v1,md=None):
 #the two primary data collection modes are to rock \mu or scan the energy
 
 def scan_abs_mu(start,stop,num,*,mot=None,det=None,
-        state_devices=default_devices_v1,exp=None,md=None):
+        state_devices=default_devices_v1,exp=None,md=None,shutter=False):
     """
     This scans rocks the angle about the vertical in the Lab frame and collects
     2D diffraction patterns at each point on the curve.  It wraps a standard 
@@ -75,6 +77,9 @@ def scan_abs_mu(start,stop,num,*,mot=None,det=None,
     state_devices == import devices for defining initial and final state
 
     """
+    #if we want to open the shutter, we probably need remove the suspender.  
+    #maybe we don't suspend on B shutter...
+    
     #the difference between exposure time and frame period
     dt = 0.0001
     #passing ophyd objects as default values seems buggy
@@ -141,6 +146,8 @@ def scan_abs_mu(start,stop,num,*,mot=None,det=None,
                     continue
                 else:
                     continue
+        #close the b shutter
+        if shutter: shut_b.close()
 
     return True
 

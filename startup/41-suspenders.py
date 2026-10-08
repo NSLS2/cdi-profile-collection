@@ -26,4 +26,3 @@ susp_shut_b = SuspendBoolHigh(EpicsSignalRO(shut_b.status.pvname,
 RE.install_suspender(susp_rc)
 RE.install_suspender(susp_shut_fe)
 RE.install_suspender(susp_shut_a)
-RE.install_suspender(susp_shut_b)
