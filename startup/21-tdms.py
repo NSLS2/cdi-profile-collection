@@ -4,7 +4,7 @@ from ophyd.device import Component as Cpt
 from ophyd.device import Device
 from ophyd.device import FormattedComponent as FCpt
 from ophyd.pv_positioner import PVPositioner
-from ophyd.signal import EpicsSignal, EpicsSignalRO
+from ophyd.signal import EpicsSignal, EpicsSignalRO, DerivedSignal
 
 
 class TDMSAxis(PVPositioner):
@@ -57,3 +57,56 @@ class TDMSTower(Device):
 
 T1 = TDMSTower(name="T1", num=1)
 T2 = TDMSTower(name="T2", num=2)
+
+
+#TDMS doesn't have an offset field in its EPICS implementation
+class OffsetTDMSSignal(DerivedSignal):
+    def __init__(self, *args, offset=0., **kwargs):
+        self._offset = offset
+        super().__init__(*args,**kwargs)
+
+    @property
+    def offset(self):
+        return self._offset
+
+    @offset.setter
+    def offset(self, val):
+        self._offset = val
+
+#don't want a forward for the TDMS at this point
+#    def forward(self,value):
+#        return value - self._offset
+
+    def inverse(self, value):
+        if value is None:
+            return None
+        return value + self._offset
+
+class OffsetTDMSDevice(Device):
+    dial_val = Cpt(EpicsSignal, 'MTR:RBV-RB0', kind='normal')
+    user_val = Cpt(OffsetTDMSSignal, derived_from='dial_val', offset=0., kind='hinted')
+
+tdms_arm1_ay = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:A1-Ax:AY}', name='arm1_ay')
+tdms_arm1_ay.user_val.offset = -11.74
+tdms_arm2_ay = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:A2-Ax:AY}', name='arm2_ay')
+tdms_arm2_ay.user_val.offset = -21. 
+
+tdms_arm1_ax = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:T1-Ax:AX}', name='arm1_ay')
+tdms_arm1_ax.user_val.offset = 0.
+tdms_arm2_ax = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:T1-Ax:AX}', name='arm2_ay')
+tdms_arm2_ax.user_val.offset = -25.
+
+tdms_arm1_tz = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:A1-Ax:TZ}', name='arm1_tz')
+tdms_arm1_tz.user_val.offset = -0. 
+tdms_arm2_tz = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:A2-Ax:TZ}', name='arm2_tz')
+tdms_arm2_tz.user_val.offset = 502.125 
+
+tdms_arm1_ty = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:T1-Ax:TY}', name='arm1_ty')
+tdms_arm1_ty.user_val.offset = -0. 
+tdms_arm2_ty = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:T2-Ax:TY}', name='arm2_ty')
+tdms_arm2_ty.user_val.offset = -165. 
+
+tdms_arm1_tx = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:T1-Ax:TX}', name='arm1_tx')
+tdms_arm1_tx.user_val.offset = -0. 
+tdms_arm2_tx = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:T2-Ax:TX}', name='arm2_tx')
+tdms_arm2_tx.user_val.offset = -72.850 
