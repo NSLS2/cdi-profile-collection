@@ -109,4 +109,4 @@ tdms_arm2_ty.user_val.offset = -165.
 tdms_arm1_tx = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:T1-Ax:TX}', name='arm1_tx')
 tdms_arm1_tx.user_val.offset = -0. 
 tdms_arm2_tx = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:T2-Ax:TX}', name='arm2_tx')
-tdms_arm2_tx.user_val.offset = -72.850 
+tdms_arm2_tx.user_val.offset = -13.75 
