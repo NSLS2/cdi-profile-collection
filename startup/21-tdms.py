@@ -91,9 +91,9 @@ tdms_arm1_ay.user_val.offset = -11.74
 tdms_arm2_ay = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:A2-Ax:AY}', name='arm2_ay')
 tdms_arm2_ay.user_val.offset = -21. 
 
-tdms_arm1_ax = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:T1-Ax:AX}', name='arm1_ay')
+tdms_arm1_ax = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:T1-Ax:AX}', name='arm1_ax')
 tdms_arm1_ax.user_val.offset = 0.
-tdms_arm2_ax = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:T1-Ax:AX}', name='arm2_ay')
+tdms_arm2_ax = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:T1-Ax:AX}', name='arm2_ax')
 tdms_arm2_ax.user_val.offset = -25.
 
 tdms_arm1_tz = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:A1-Ax:TZ}', name='arm1_tz')
