@@ -149,16 +149,18 @@ class TmpAdvimba(AreaDetector[CustomVimbaDriverIO]):
     # TODO need to add read_configuration and describe_configruation to read ROI plugins
 
 
+
+
 with init_devices():
     eiger = EigerDetector(
         prefix="XF:09ID1-ES{Det:Eig1}", name="eiger2-1", path_provider=pp
     )
+    eiger_stats1=NDStatsIO("XF:09ID1-ES{Det:Eig1}Stats1:")
     merlin = MerlinDetector(
         "XF:09ID1-ES{Det:Merlin1}",
         adcore.ADWriterFactory.hdf(pp, writer_suffix="HDF1:"),
         name="merlines-1",
     )
-
     cam1 = TmpAdvimba(
         "XF:09IDA-BI{DM:1-Cam:1}",
         adcore.ADWriterFactory.hdf(pp, writer_suffix="HDF1:"),
@@ -215,3 +217,5 @@ with init_devices():
     #     adcore.ADWriterFactory.hdf(pp, writer_suffix="HDF1:"),
     #     name="cam-15",
     #     )
+
+eiger.add_detector_logics(PluginSignalDataLogic(eiger.driver,eiger_stats1.total))
