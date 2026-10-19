@@ -89,7 +89,9 @@ class OffsetTDMSDevice(Device):
 tdms_arm1_ay = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:A1-Ax:AY}', name='arm1_ay')
 tdms_arm1_ay.user_val.offset = -11.74
 tdms_arm2_ay = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:A2-Ax:AY}', name='arm2_ay')
-tdms_arm2_ay.user_val.offset = -21. 
+#tdms_arm2_ay.user_val.offset = -21. 
+#with tx at user zero, dial 24.22 using Au(111)
+tdms_arm2_ay.user_val.offset = -19.173
 
 tdms_arm1_ax = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:T1-Ax:AX}', name='arm1_ax')
 tdms_arm1_ax.user_val.offset = 0.
@@ -109,4 +111,4 @@ tdms_arm2_ty.user_val.offset = -165.
 tdms_arm1_tx = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:T1-Ax:TX}', name='arm1_tx')
 tdms_arm1_tx.user_val.offset = -0. 
 tdms_arm2_tx = OffsetTDMSDevice('XF:09IDC-ES:1{TDMS:T2-Ax:TX}', name='arm2_tx')
-tdms_arm2_tx.user_val.offset = -13.75 
+tdms_arm2_tx.user_val.offset = -24.22 
