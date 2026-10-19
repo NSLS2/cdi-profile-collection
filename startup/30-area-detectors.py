@@ -219,3 +219,4 @@ with init_devices():
     #     )
 
 eiger.add_detector_logics(PluginSignalDataLogic(eiger.driver,eiger_stats1.total))
+
