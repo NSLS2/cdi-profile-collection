@@ -16,7 +16,6 @@ ca-certificates = ">=2026.10.19"
 certifi = ">=2026.10.19"
 matplotlib-base = ">=3.10"
 networkx = ">=3.4.2,<4"
-nslsii = ">=0.11.9,<0.12"
 numpy = "*"
 ophyd = ">=1.11.2,<2"
 pyepics = "*"
@@ -32,6 +31,12 @@ p4p = ">=4.2.0,<5"
 pip = ">=26.2.2"
 bluesky-tiled-plugins = ">=2.0.9,<3"
 xrayutilities = ">=1.7.12,<2"
+# Resolve binary runtime dependencies of the Git-based nslsii test build from conda-forge.
+bluesky-kafka = ">=0.8.0"
+ipywidgets = "*"
+opencv = "*"
+pyolog = "*"
+redis-json-dict = "*"
 
 # Linux-only dependencies (EPICS and HDF5 plugins may not be available on macOS)
 [feature.profile.target.linux-64.dependencies]
@@ -40,6 +45,8 @@ epicscorelibs = ">=7.0.7.99.1.1,<8"
 ophyd-async = ">=0.19.4"
 
 [feature.profile.pypi-dependencies]
+# Test https://github.com/NSLS2/nslsii/pull/271 until its implementation is released.
+nslsii = { git = "https://github.com/thopkins32/nslsii", rev = "eiger-async" }
 # TODO get this onto conda-forge
 # cditools = { git = "https://github.com/nsls2/cditools", rev="main" }
 cditools = { git = "https://github.com/nsls2/cditools", rev = "debug-eiger-acquire" }

@@ -1,9 +1,9 @@
 from typing import Annotated as A
 from typing import Sequence
 
-from cditools.eiger_async import EigerDetector
 from cditools.merlin_async import MerlinDetector
 from event_model import DataKey
+from nslsii.ophyd_async.devices import Eiger2DriverIO, EigerDetector
 from nslsii.ophyd_async.providers import NSLS2PathProvider
 from ophyd_async.core import (
     SignalR,
@@ -152,9 +152,21 @@ class TmpAdvimba(AreaDetector[CustomVimbaDriverIO]):
 
 
 with init_devices():
+    # Preferred initial test: the HDF plugin writes one file per scan from the DCU stream.
     eiger = EigerDetector(
-        prefix="XF:09ID1-ES{Det:Eig1}", name="eiger2-1", path_provider=pp
+        "XF:09ID1-ES{Det:Eig1}",
+        adcore.ADWriterFactory.hdf(pp, writer_suffix="HDF1:"),
+        driver_cls=Eiger2DriverIO,
+        name="eiger2-1",
     )
+
+    # Alternative: the Eiger FileWriter keeps the Dectris master and per-point data files.
+    # eiger = EigerDetector(
+    #     "XF:09ID1-ES{Det:Eig1}",
+    #     driver_cls=Eiger2DriverIO,
+    #     fw_path_provider=pp,
+    #     name="eiger2-1",
+    # )
     eiger_stats1=NDStatsIO("XF:09ID1-ES{Det:Eig1}Stats1:")
     merlin = MerlinDetector(
         "XF:09ID1-ES{Det:Merlin1}",
@@ -219,4 +231,3 @@ with init_devices():
     #     )
 
 eiger.add_detector_logics(PluginSignalDataLogic(eiger.driver,eiger_stats1.total))
-
