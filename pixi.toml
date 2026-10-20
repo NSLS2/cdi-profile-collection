@@ -38,6 +38,10 @@ hklpy2 = "*"
 hkl = "*"
 odrpack = "==0.6.1"
 
+[feature.profile.target.linux-64.pypi-dependencies]
+hklpy2-solvers = ">=0.3.9, <0.4"
+ad_hoc_diffractometer = "*"
+
 [feature.profile.pypi-dependencies]
 # ophyd-async = { version = ">0.10.0", extras = ["ca", "pva"] }
 # TODO get this onto conda-forge
