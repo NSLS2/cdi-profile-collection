@@ -13,6 +13,9 @@ os.environ["OPHYD_ASYNC_PRESERVE_DETECTOR_STATE"] = "YES"
 
 EpicsSignalBase.set_defaults(timeout=10, connection_timeout=10)
 
+# Have ophyd-async keep detector state constant when not explicitly overridden
+os.environ["OPHYD_ASYNC_PRESERVE_DETECTOR_STATE"] = "YES"
+
 ### Configure Base
 nslsii.configure_base(
     get_ipython().user_ns,  # noqa: F821

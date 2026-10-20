@@ -23,6 +23,8 @@ from ophyd_async.epics.adcore import (
     NDPluginBaseIO,
     NDStatsIO,
     PluginSignalDataLogic,
+    ADContAcqAcquireLogic,
+    ADContAcqTriggerLogic,
 )
 from ophyd_async.epics.core import EpicsDevice, EpicsOptions, PvSuffix, stop_busy_record
 
@@ -149,13 +151,11 @@ class TmpAdvimba(AreaDetector[CustomVimbaDriverIO]):
     # TODO need to add read_configuration and describe_configruation to read ROI plugins
 
 
-
-
 with init_devices():
     eiger = EigerDetector(
         prefix="XF:09ID1-ES{Det:Eig1}", name="eiger2-1", path_provider=pp
     )
-    eiger_stats1=NDStatsIO("XF:09ID1-ES{Det:Eig1}Stats1:")
+    eiger_stats1 = NDStatsIO("XF:09ID1-ES{Det:Eig1}Stats1:")
     merlin = MerlinDetector(
         "XF:09ID1-ES{Det:Merlin1}",
         adcore.ADWriterFactory.hdf(pp, writer_suffix="HDF1:"),
@@ -186,9 +186,14 @@ with init_devices():
         adcore.ADWriterFactory.hdf(pp, writer_suffix="HDF1:"),
         name="cam-5",
     )
-    cam6 = TmpAdvimba(
+    cam6_driver = advimba.VimbaDriverIO("XF:09IDB-BI{DM:3-Cam:6}cam1:")
+    cam6_cb_plugin = adcore.NDCircularBuffIO("XF:09IDB-BI{DM:3-Cam:6}CB1:")
+    cam6 = AreaDetector(
+        cam6_driver,
         "XF:09IDB-BI{DM:3-Cam:6}",
         adcore.ADWriterFactory.hdf(pp, writer_suffix="HDF1:"),
+        trigger_logic=ADContAcqTriggerLogic(cam6_driver, cam6_cb_plugin),
+        acquire_logic=ADContAcqAcquireLogic(cam6_driver, cam6_cb_plugin),
         name="cam-6",
     )
     cam7 = TmpAdvimba(
@@ -218,5 +223,4 @@ with init_devices():
     #     name="cam-15",
     #     )
 
-eiger.add_detector_logics(PluginSignalDataLogic(eiger.driver,eiger_stats1.total))
-
+eiger.add_detector_logics(PluginSignalDataLogic(eiger.driver, eiger_stats1.total))
