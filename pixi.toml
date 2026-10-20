@@ -28,6 +28,7 @@ p4p = ">=4.2.0,<5"
 pip = ">=25.2,<26"
 bluesky-tiled-plugins = ">=2.0.0b68"
 
+
 # Linux-only dependencies (EPICS and HDF5 plugins may not be available on macOS)
 [feature.profile.target.linux-64.dependencies]
 blosc-hdf5-plugin = ">=1.0.1,<2"
@@ -35,6 +36,7 @@ epicscorelibs = ">=7.0.7.99.1.1,<8"
 ophyd-async = { version = ">0.10.0", extras = ["ca", "pva"] }
 hklpy2 = "*"
 hkl = "*"
+odrpack = "==0.6.1"
 
 [feature.profile.pypi-dependencies]
 # ophyd-async = { version = ">0.10.0", extras = ["ca", "pva"] }
