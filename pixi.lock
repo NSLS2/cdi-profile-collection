@@ -1942,6 +1942,8 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/8f/5e/f1e1dd319e35e962a4e00b33150a8868b6329cc1d19fd533436ba5488f09/uncertainties-3.2.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/92/16/e78d6e60ecd1b3cf446fad45985ad6cda22f46ad2cffabb644d77b317bc4/asteval-1.0.10-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d8/c2/f60a6b67505e53907bb657678169780d2f7e43e7fa9eba8e47926318c7d3/xrayutilities-1.8.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/e6/e1/b2769d941ec93ae1f106dbe31ee1cfb6e8795c4416a5a6f271a968b3814b/ad_hoc_diffractometer-1.0.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/ff/1a/8aa75802931eb723eb440dc1fe5e42f209791e120f039c7c7d069b8ed4fb/hklpy2_solvers-0.3.9-py3-none-any.whl
 packages:
 - conda: https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda
   build_number: 20
@@ -23206,3 +23208,75 @@ packages:
   - setuptools-dso>=2.7a1
   - epicscorelibs>=7.0.10.99.0.1,<7.0.10.99.1
   requires_python: '>=2.7'
+- pypi: https://files.pythonhosted.org/packages/e6/e1/b2769d941ec93ae1f106dbe31ee1cfb6e8795c4416a5a6f271a968b3814b/ad_hoc_diffractometer-1.0.0-py3-none-any.whl
+  name: ad-hoc-diffractometer
+  version: 1.0.0
+  sha256: 4f22ba225aa57e7cea6fc496f312d3e1623505498aa9c1ad266db28480d8360e
+  requires_dist:
+  - numpy
+  - pyyaml
+  - hatch-vcs ; extra == 'all'
+  - matplotlib ; extra == 'all'
+  - myst-nb ; extra == 'all'
+  - pydata-sphinx-theme ; extra == 'all'
+  - pytest ; extra == 'all'
+  - pytest-cov ; extra == 'all'
+  - scipy ; extra == 'all'
+  - sphinx ; extra == 'all'
+  - sphinx-autoapi ; extra == 'all'
+  - sphinx-copybutton ; extra == 'all'
+  - sphinx-design ; extra == 'all'
+  - sphinx-tabs ; extra == 'all'
+  - hatch-vcs ; extra == 'dev'
+  - pytest ; extra == 'dev'
+  - pytest-cov ; extra == 'dev'
+  - scipy ; extra == 'dev'
+  - matplotlib ; extra == 'doc'
+  - myst-nb ; extra == 'doc'
+  - pydata-sphinx-theme ; extra == 'doc'
+  - sphinx ; extra == 'doc'
+  - sphinx-autoapi ; extra == 'doc'
+  - sphinx-copybutton ; extra == 'doc'
+  - sphinx-design ; extra == 'doc'
+  - sphinx-tabs ; extra == 'doc'
+  requires_python: '>=3.10'
+- pypi: https://files.pythonhosted.org/packages/ff/1a/8aa75802931eb723eb440dc1fe5e42f209791e120f039c7c7d069b8ed4fb/hklpy2_solvers-0.3.9-py3-none-any.whl
+  name: hklpy2-solvers
+  version: 0.3.9
+  sha256: 077cace91adff1c496d6c5f5028e94d97e73f25969b1a491a58b3f1671de93b5
+  requires_dist:
+  - ad-hoc-diffractometer>=0.11.4
+  - hklpy2>=0.7.3
+  - numpy
+  - build ; extra == 'all'
+  - coverage ; extra == 'all'
+  - diffcalc-core ; extra == 'all'
+  - myst-nb ; extra == 'all'
+  - packaging ; extra == 'all'
+  - pre-commit ; extra == 'all'
+  - pydata-sphinx-theme ; extra == 'all'
+  - pytest ; extra == 'all'
+  - pytest-cov ; extra == 'all'
+  - ruff ; extra == 'all'
+  - sphinx ; extra == 'all'
+  - sphinx-autoapi ; extra == 'all'
+  - sphinx-copybutton ; extra == 'all'
+  - sphinx-design ; extra == 'all'
+  - sphinx-tabs ; extra == 'all'
+  - build ; extra == 'dev'
+  - coverage ; extra == 'dev'
+  - diffcalc-core ; extra == 'dev'
+  - packaging ; extra == 'dev'
+  - pre-commit ; extra == 'dev'
+  - pytest ; extra == 'dev'
+  - pytest-cov ; extra == 'dev'
+  - ruff ; extra == 'dev'
+  - diffcalc-core ; extra == 'diffcalc'
+  - myst-nb ; extra == 'doc'
+  - pydata-sphinx-theme ; extra == 'doc'
+  - sphinx ; extra == 'doc'
+  - sphinx-autoapi ; extra == 'doc'
+  - sphinx-copybutton ; extra == 'doc'
+  - sphinx-design ; extra == 'doc'
+  - sphinx-tabs ; extra == 'doc'
+  requires_python: '>=3.10'
