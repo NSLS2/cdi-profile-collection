@@ -8,6 +8,9 @@ from ophyd.signal import EpicsSignalBase
 from tiled.client import from_uri
 import bluesky.utils as bsu
 
+# Used to preserve areaDetector NumImages_RBV as set in Phoebus
+os.environ["OPHYD_ASYNC_PRESERVE_DETECTOR_STATE"] = "YES"
+
 EpicsSignalBase.set_defaults(timeout=10, connection_timeout=10)
 
 ### Configure Base
