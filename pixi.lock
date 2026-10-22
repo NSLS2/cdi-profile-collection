@@ -763,7 +763,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zlib-ng-2.3.3-h8bce59a_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstandard-0.25.0-py312h01f6755_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstd-1.5.7-h3eecb57_6.conda
-      - pypi: git+https://github.com/nsls2/cditools?rev=ad-hoc-diffractometer#c887819a3c7ff089dd04e08c6aa7261032169177
+      - pypi: ../cditools
       - pypi: https://files.pythonhosted.org/packages/0e/fd/aad3337b0d14352589af31719112d25f0f27958547c81ed0dc01301a1b3a/ophyd_async-0.21.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/10/fc/27b418beb7e7598783fe9a9eea830144b9e1a130c338d7da3ecd354447ad/epicscorelibs-7.0.10.99.0.1-cp312-cp312-macosx_11_0_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/38/7e/7b91c89a4cf0f543a83be978657afb20c86af6d725253e319589dcc4ce52/lmfit-1.3.4-py3-none-any.whl
@@ -1299,7 +1299,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zlib-ng-2.3.3-hed4e4f5_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstandard-0.25.0-py312h37e1c23_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hbf9d68e_6.conda
-      - pypi: git+https://github.com/nsls2/cditools?rev=ad-hoc-diffractometer#c887819a3c7ff089dd04e08c6aa7261032169177
+      - pypi: ../cditools
       - pypi: https://files.pythonhosted.org/packages/0e/fd/aad3337b0d14352589af31719112d25f0f27958547c81ed0dc01301a1b3a/ophyd_async-0.21.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/10/fc/27b418beb7e7598783fe9a9eea830144b9e1a130c338d7da3ecd354447ad/epicscorelibs-7.0.10.99.0.1-cp312-cp312-macosx_11_0_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/35/ed/bdbcccfbbcee572094d3407632a726891b5aac7d46790cdabd583e409615/xrayutilities-1.8.0-cp312-cp312-macosx_11_0_arm64.whl
@@ -1936,7 +1936,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zarr-3.3.0-pyhc364b38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.0-pyhcf101f3_0.conda
-      - pypi: git+https://github.com/nsls2/cditools?rev=ad-hoc-diffractometer#c887819a3c7ff089dd04e08c6aa7261032169177
+      - pypi: ../cditools
       - pypi: https://files.pythonhosted.org/packages/38/7e/7b91c89a4cf0f543a83be978657afb20c86af6d725253e319589dcc4ce52/lmfit-1.3.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/67/d8/8af47ecca80c365d5ffcdce6fae78ec71921052189c1486ba9dbac7a36f4/pvxslibs-1.3.2-cp312-cp312-manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/8f/5e/f1e1dd319e35e962a4e00b33150a8868b6329cc1d19fd533436ba5488f09/uncertainties-3.2.3-py3-none-any.whl
@@ -22976,9 +22976,8 @@ packages:
     - zstd >=1.5.7,<1.6.0a0
   size: 433413
   timestamp: 1764777166076
-- pypi: git+https://github.com/nsls2/cditools?rev=ad-hoc-diffractometer#c887819a3c7ff089dd04e08c6aa7261032169177
+- pypi: ../cditools
   name: cditools
-  version: 0.1.1.dev184+gc887819a3
   requires_dist:
   - ophyd
   - ophyd-async[ca]>=0.21

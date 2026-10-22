@@ -36,6 +36,7 @@ epicscorelibs = ">=7.0.7.99.1.1,<8"
 ophyd-async = { version = ">0.10.0", extras = ["ca", "pva"] }
 hklpy2 = "*"
 hkl = "*"
+# TODO - look into loading odrpack from scipy
 odrpack = "==0.6.1"
 
 [feature.profile.target.linux-64.pypi-dependencies]
@@ -46,6 +47,7 @@ ad_hoc_diffractometer = "*"
 # ophyd-async = { version = ">0.10.0", extras = ["ca", "pva"] }
 # TODO get this onto conda-forge
 # cditools = { git = "https://github.com/nsls2/cditools", rev="main" }
+# cditools = { path = "../cditools", editable = true }
 cditools = { git = "https://github.com/nsls2/cditools", rev="ad-hoc-diffractometer" }
 pvxslibs = ">=1.3.2, <2"
 
