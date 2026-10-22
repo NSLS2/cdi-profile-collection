@@ -1,48 +1,98 @@
-default_language_version:
-  python: python3
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+  - repo: local
     hooks:
       - id: check-added-large-files
+        name: check for added large files
+        entry: check-added-large-files
+        language: system
+        stages: [pre-commit, pre-push, manual]
       - id: check-case-conflict
+        name: check for case conflicts
+        entry: check-case-conflict
+        language: system
       - id: check-merge-conflict
+        name: check for merge conflicts
+        entry: check-merge-conflict
+        language: system
+        types: [text]
       - id: check-symlinks
+        name: check for broken symlinks
+        entry: check-symlinks
+        language: system
+        types: [symlink]
       - id: check-yaml
+        name: check yaml
+        entry: check-yaml
+        language: system
+        types: [yaml]
       - id: debug-statements
+        name: debug statements (python)
+        entry: debug-statement-hook
+        language: system
+        types: [python]
       - id: end-of-file-fixer
+        name: fix end of files
+        entry: end-of-file-fixer
+        language: system
+        types: [text]
+        stages: [pre-commit, pre-push, manual]
       - id: mixed-line-ending
+        name: mixed line ending
+        entry: mixed-line-ending
+        language: system
+        types: [text]
       - id: name-tests-test
+        name: python tests naming
+        entry: name-tests-test
+        language: system
+        files: (^|/)tests/.+\.py$
         args: ["--pytest-test-first"]
       - id: requirements-txt-fixer
+        name: fix requirements.txt
+        entry: requirements-txt-fixer
+        language: system
+        files: (requirements|constraints).*\.txt$
       - id: trailing-whitespace
-
-  - repo: https://github.com/rbubley/mirrors-prettier
-    rev: "v3.5.3"
-    hooks:
+        name: trim trailing whitespace
+        entry: trailing-whitespace-fixer
+        language: system
+        types: [text]
+        stages: [pre-commit, pre-push, manual]
       - id: prettier
+        name: prettier
+        entry: prettier --write --ignore-unknown
+        language: system
         types_or: [yaml, markdown, html, css, scss, javascript, json]
         args: [--prose-wrap=always]
-
-  - repo: https://github.com/ambv/black
-    rev: 25.1.0
-    hooks:
       - id: black
-
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.11.5"
-    hooks:
+        name: black
+        entry: black
+        language: system
+        require_serial: true
+        types_or: [python, pyi]
       - id: ruff
+        name: ruff
+        entry: ruff check --force-exclude
+        language: system
+        require_serial: true
+        types_or: [python, pyi, jupyter]
         args: ["--fix", "--show-fixes"]
       - id: ruff-format
-
-  - repo: https://github.com/pycqa/isort
-    rev: 6.0.1
-    hooks:
+        name: ruff-format
+        entry: ruff format --force-exclude
+        language: system
+        require_serial: true
+        types_or: [python, pyi, jupyter]
       - id: isort
+        name: isort
+        entry: isort
+        language: system
+        require_serial: true
+        types_or: [cython, pyi, python]
+        stages: [pre-commit, pre-merge-commit, pre-push, manual]
         args: ["--profile", "black", "--filter-files", "--line-length", "88"]
-
-  - repo: https://github.com/kynan/nbstripout
-    rev: 0.8.1
-    hooks:
       - id: nbstripout
+        name: nbstripout
+        entry: nbstripout
+        language: system
+        types: [jupyter]
