@@ -151,7 +151,7 @@ class TmpAdvimba(AreaDetector[CustomVimbaDriverIO]):
 
 
 
-with init_devices():
+with init_devices(mock = RUNNING_IN_NSLS2_CI):
     eiger = EigerDetector(
         prefix="XF:09ID1-ES{Det:Eig1}", name="eiger2-1", path_provider=pp
     )

@@ -10,6 +10,7 @@ import bluesky.utils as bsu
 
 # Have ophyd-async keep detector state constant when not explicitly overridden
 os.environ["OPHYD_ASYNC_PRESERVE_DETECTOR_STATE"] = "YES"
+RUNNING_IN_NSLS2_CI = os.environ.get("RUNNING_IN_NSLS2_CI", "NO") == "YES"
 
 EpicsSignalBase.set_defaults(timeout=10, connection_timeout=10)
 

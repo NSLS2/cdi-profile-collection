@@ -16,5 +16,5 @@ attenuators_config = [
     ("Al2O3", 100.)
 ]
 
-with init_devices():
+with init_devices(mock = RUNNING_IN_NSLS2_CI):
     bank = AttenuatorBank("XF:09ID1-ES{IOLOGIK1:E1212}", attenuators_config, energy)
