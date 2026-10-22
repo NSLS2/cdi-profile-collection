@@ -9,6 +9,7 @@ import hklpy2
 import hklpy2.blocks.reflection
 import hklpy2.user
 from cditools.tdms import TDMSAxis
+from cditools.motors import Energy
 from ophyd import Component as Cpt, FormattedComponent as FCpt
 from ophyd import EpicsMotor
 from bluesky import RunEngine
@@ -33,7 +34,7 @@ angles.
 
 # Register geometry
 try:
-    ahd.register_geometry_file("../diffractometer-geometry.yml", name="cdi-geometry")
+    ahd.register_geometry_file("./diffractometer-geometry.yml", name="cdi-geometry")
 except ValueError:  # geometry already registered
     contextlib.suppress(ValueError)
 
@@ -66,11 +67,19 @@ real_tdms2_angles = {
     }
 }
 
+beam_kwargs = {
+    "class": Energy
+}
+
 diffr = hklpy2.creator(
     prefix="XF:09IDC-",
     name="diffr",
     solver="ad_hoc",
     geometry="cdi-geometry",
+    beam_kwargs=beam_kwargs,
     reals=real_gon_angles | real_tdms1_angles,
-    class_bases=[CDIDiffractometer]
+    class_bases=[CDIDiffractometer],
+    energy=energy
 )
+
+diffr.add_sample("Au", a=4.08)
