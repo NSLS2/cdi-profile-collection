@@ -8,7 +8,7 @@ from ophyd.signal import EpicsSignalBase
 from tiled.client import from_uri
 import bluesky.utils as bsu
 
-# Used to preserve areaDetector NumImages_RBV as set in Phoebus
+# Have ophyd-async keep detector state constant when not explicitly overridden
 os.environ["OPHYD_ASYNC_PRESERVE_DETECTOR_STATE"] = "YES"
 
 EpicsSignalBase.set_defaults(timeout=10, connection_timeout=10)
@@ -38,4 +38,4 @@ c.context.http_client.headers["tiled-qos"] = "acquisition"
 tw = TiledWriter(client=tiled_writing_client)
 
 RE.subscribe(tw)  # noqa: F821
-#RE.msg_hook = bsu.ts_msg_hook
+# RE.msg_hook = bsu.ts_msg_hook
