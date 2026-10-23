@@ -38,6 +38,7 @@ xrayutilities = ">=1.7.12,<2"
 blosc-hdf5-plugin = ">=1.0.1,<2"
 epicscorelibs = ">=7.0.7.99.1.1,<8"
 ophyd-async = ">=0.19.4"
+hkl = "*"
 
 [feature.profile.pypi-dependencies]
 # TODO get this onto conda-forge

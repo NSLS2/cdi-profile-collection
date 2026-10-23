@@ -83,4 +83,4 @@ diffr = hklpy2.creator(
 )
 
 diffr.add_sample("Au", a=4.08)
-diffr.beam.energy = energy.energy
+diffr.beam.energy.put(energy.energy)
