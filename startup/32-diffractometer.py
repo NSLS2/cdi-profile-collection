@@ -80,7 +80,7 @@ diffr = hklpy2.creator(
     geometry="cdi-geometry",
     reals=real_gon_angles | real_tdms1_angles,
     class_bases=[CDIDiffractometer],
-    energy=energy
 )
 
 diffr.add_sample("Au", a=4.08)
+diffr.beam.energy = energy.energy
