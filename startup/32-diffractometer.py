@@ -67,16 +67,17 @@ real_tdms2_angles = {
     }
 }
 
-beam_kwargs = {
-    "class": Energy
-}
+# TODO - have to combine Energy and WavelengthXRay classes for this to work
+# or have a .wavelength method on Energy class
+# beam_kwargs = {
+#     "class": Energy
+# }
 
 diffr = hklpy2.creator(
     prefix="XF:09IDC-",
     name="diffr",
     solver="ad_hoc",
     geometry="cdi-geometry",
-    beam_kwargs=beam_kwargs,
     reals=real_gon_angles | real_tdms1_angles,
     class_bases=[CDIDiffractometer],
     energy=energy
