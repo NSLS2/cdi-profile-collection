@@ -60,13 +60,57 @@ stages:
 
 # 7 real axes, so N - 3 = 4 constraints are needed for a unique forward solve.
 modes:
-  fixed_incidence:
+  fixed_incidence_mu:
+    constraints:
+      - { type: sample, stage: mu, value: 0.0 }
+      - { type: sample, stage: omega2, value: 0.0 }
+      - { type: sample, stage: chi2, value: 0.0 }
+      - { type: reference, name: incidence, value: 5.0 }
+    computed: [omega1, chi1, gamma, delta]
+    extras:
+      n_hat: REQUIRED
+      incidence: REQUIRED
+
+  fixed_incidence_omega1:
+    constraints:
+      - { type: sample, stage: omega1, value: 0.0 }
+      - { type: sample, stage: omega2, value: 0.0 }
+      - { type: sample, stage: chi2, value: 0.0 }
+      - { type: reference, name: incidence, value: 5.0 }
+    computed: [mu, chi1, gamma, delta]
+    extras:
+      n_hat: REQUIRED
+      incidence: REQUIRED
+
+  fixed_incidence_chi1:
     constraints:
       - { type: sample, stage: chi1, value: 0.0 }
       - { type: sample, stage: omega2, value: 0.0 }
       - { type: sample, stage: chi2, value: 0.0 }
       - { type: reference, name: incidence, value: 5.0 }
     computed: [mu, omega1, gamma, delta]
+    extras:
+      n_hat: REQUIRED
+      incidence: REQUIRED
+
+  fixed_incidence_gamma:
+    constraints:
+      - { type: sample, stage: omega2, value: 0.0 }
+      - { type: sample, stage: chi2, value: 0.0 }
+      - { type: detector, stage: gamma, value: 0.0 }
+      - { type: reference, name: incidence, value: 5.0 }
+    computed: [mu, omega1, chi1, delta]
+    extras:
+      n_hat: REQUIRED
+      incidence: REQUIRED
+
+  fixed_incidence_delta:
+    constraints:
+      - { type: sample, stage: omega2, value: 0.0 }
+      - { type: sample, stage: chi2, value: 0.0 }
+      - { type: detector, stage: delta, value: 0.0 }
+      - { type: reference, name: incidence, value: 5.0 }
+    computed: [mu, omega1, chi1, gamma]
     extras:
       n_hat: REQUIRED
       incidence: REQUIRED
