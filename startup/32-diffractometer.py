@@ -19,7 +19,7 @@ from ophyd.signal import AttributeSignal
 from bluesky.callbacks.best_effort import BestEffortCallback
 from hklpy2.user import cahkl_table, pa
 from hklpy2.utils import pick_closest_solution
-from cditools.diffractometer import CDIDiffractometer
+from cditools.hkl_solver import CDIAdHocSolver
 import xrayutilities.materials as mat
 
 
@@ -36,40 +36,22 @@ DiffractometerBase.__init__() method does not accept a KeyValueMap for the
 angles.
 """
 
-# Register geometry
-try:
-    ahd.register_geometry_file("./diffractometer-geometry.yml", name="cdi-geometry")
-except ValueError:  # geometry already registered
-    contextlib.suppress(ValueError)
+"""Push this to tools repo if it works"""
+from ophyd.signal import DerivedSignal, EpicsSignal, EpicsSignalRO
 
+class DegreesFromRadians(DerivedSignal):
+    def inverse(self, value):
+        return math.degrees(value)
 
-real_gon_angles = {
-    "mu": "OP:1{Gon:1-Ax:Ry}Mtr",
-    "omega1": "OP:1{Gon:1-Ax:Rx2}Mtr",
-    "chi1": "OP:1{Gon:1-Ax:Rz2}Mtr",
-    "omega2": "OP:1{Gon:1-Ax:Rx1}Mtr",
-    "chi2": "OP:1{Gon:1-Ax:Rz1}Mtr"
-}
-real_tdms1_angles = {
-    "gamma": {
-        "class": TDMSAxis,
-        "prefix": "XF:09IDC-ES:1{TDMS:T1-Ax:AX}MTR:"
-    },
-    "delta": {
-        "class": TDMSAxis,
-        "prefix": "XF:09IDC-ES:1{TDMS:A1-Ax:AY}MTR:"
-    }
-}
-real_tdms2_angles = {
-    "gamma": {
-        "class": TDMSAxis,
-        "prefix": "XF:09IDC-ES:1{TDMS:T2-Ax:AX}MTR:"
-    },
-    "delta": {
-        "class": TDMSAxis,
-        "prefix": "XF:09IDC-ES:1{TDMS:A2-Ax:AY}MTR:"
-    }
-}
+    def forward(self, value):
+        return math.radians(value)
+
+class TDMSAngleAxis(TDMSAxis):
+    setpoint_rad = Cpt(EpicsSignal, "VAL-SP", kind="omitted")
+    readback_rad = Cpt(EpicsSignalRO, "RBV-RB0", kind="omitted")
+
+    setpoint = Cpt(DegreesFromRadians, derived_from="setpoint_rad")
+    readback = Cpt(DegreesFromRadians, derived_from="readback_rad", kind="hinted")
 
 from hklpy2.utils import INTERNAL_XRAY_ENERGY_UNITS, INTERNAL_LENGTH_UNITS
 from ophyd import Device
@@ -102,7 +84,7 @@ class CDIBeam(Device):
 
     @property
     def _wavelength(self) -> float:
-        return self._energy * 100
+        return self._to_wavelength(self._energy)
 
     def _to_wavelength(self, value: float) -> float:
         """Convert E to lambda."""
@@ -126,79 +108,67 @@ class CDIBeam(Device):
             A_KEV / wavelength, INTERNAL_XRAY_ENERGY_UNITS, self.energy_units.get()
         )
 
-# import numpy as np
-# class Energy(PseudoPositioner):
-#     bragg = Cpt(EpicsMotor, "Mono:HDCM-Ax:Bragg}Mtr")
-#     cgap = Cpt(EpicsMotor, "Mono:HDCM-Ax:HG}Mtr")
-#     # Synthetic Axis
-#     energy = Cpt(PseudoSingle, egu="KeV")
-
-#     # Energy "limits"
-#     _low = 5.0  # TODO: CHECK THIS VALUE
-#     _high = 15.0  # TODO: CHECK THIS VALUE
-
-#     # Set up constants
-#     Xoffset = 20.0  # mm
-#     d_111 = 3.1286911960950756
-#     ANG_OVER_KEV = 12.3984
-
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.energy.readback.name = "energy"
-#         self.energy.setpoint.name = "energy_setpoint"
-
-#     def energy_to_positions(self, target_energy: float):
-#         """Compute undulator and mono positions given a target energy
-
-#         Parameters
-#         ----------
-#         target_energy : float
-#             Target energy in keV
-
-#         Returns
-#         -------
-#         bragg : float
-#             The angle to set the monocromotor in radians
-#         gap : float
-#             The gap position in millimeters
-#         """
-
-#         # Calculate Bragg RBV
-#         bragg = np.arcsin((self.ANG_OVER_KEV / target_energy) / (2 * self.d_111))
-
-#         # Calculate C2X
-#         gap = self.Xoffset / 2 / np.cos(bragg)
-
-#         return bragg, gap
-
-#     @pseudo_position_argument
-#     def forward(self, p_pos):
-#         energy = p_pos.energy  # energy assumed in keV
-#         bragg, gap = self.energy_to_positions(energy)
-#         return self.RealPosition(bragg=np.rad2deg(bragg), cgap=gap)
-
-#     @real_position_argument
-#     def inverse(self, r_pos):
-#         bragg = np.deg2rad(10)
-#         e = self.ANG_OVER_KEV / (2 * self.d_111 * np.sin(bragg))
-#         return self.PseudoPosition(energy=float(e))
+# Register geometry
+try:
+    ahd.register_geometry_file("./diffractometer-geometry.yml", name="cdi-geometry")
+except ValueError:  # geometry already registered
+    contextlib.suppress(ValueError)
 
 
+real_gon_angles = {
+    "mu": "OP:1{Gon:1-Ax:Ry}Mtr",
+    "omega1": "OP:1{Gon:1-Ax:Rx2}Mtr",
+    "chi1": "OP:1{Gon:1-Ax:Rz2}Mtr",
+    "omega2": "OP:1{Gon:1-Ax:Rx1}Mtr",
+    "chi2": "OP:1{Gon:1-Ax:Rz1}Mtr"
+}
+real_tdms1_angles = {
+    "gamma": {
+        "class": TDMSAxis,
+        "prefix": "XF:09IDC-ES:1{TDMS:T1-Ax:AX}MTR:"
+    },
+    "delta": {
+        "class": TDMSAxis,
+        "prefix": "XF:09IDC-ES:1{TDMS:A1-Ax:AY}MTR:"
+    }
+}
+
+# incase TDMS does use radians
+# real_tdms1_angles = {
+#     "gamma": {
+#         "class": TDMSAngleAxis,
+#         "prefix": "XF:09IDC-ES:1{TDMS:T1-Ax:AX}MTR:"
+#     },
+#     "delta": {
+#         "class": TDMSAngleAxis,
+#         "prefix": "XF:09IDC-ES:1{TDMS:A1-Ax:AY}MTR:"
+#     }
+# }
+
+real_tdms2_angles = {
+    "gamma": {
+        "class": TDMSAxis,
+        "prefix": "XF:09IDC-ES:1{TDMS:T2-Ax:AX}MTR:"
+    },
+    "delta": {
+        "class": TDMSAxis,
+        "prefix": "XF:09IDC-ES:1{TDMS:A2-Ax:AY}MTR:"
+    }
+}
 
 if "energy" not in locals():
     energy = Energy(prefix="XF:09IDA-OP:1{", name="energy", labels=["dcm"])
 
-
 diffr = hklpy2.creator(
     prefix="XF:09IDC-",
     name="diffr",
-    solver="ad_hoc",
+    solver="cdi_ad_hoc",
     geometry="cdi-geometry",
     beam_kwargs={
         "class": CDIBeam,
         "cdi_energy_device": energy
     },
-    # reals=real_gon_angles | real_tdms1_angles,
+    reals=real_gon_angles | real_tdms1_angles,
 )
 
 # rotation constraints
@@ -215,6 +185,14 @@ diffr.add_sample("Ruby", a=4.7602, c=12.9933, gamma=120)
 
 # gold sample
 diffr.add_sample("Au", a=mat.Au.a)
+
+# incase CDIBeam doesn't work
+# diffr.beam.energy.put(10.002)
+
+# wait for connection
+diffr.wait_for_connection(timeout=10)
+
+hklpy2.user.set_diffractometer(diffr)
 
 # saves configuration of diffractometer in every run
 crw = ConfigurationRunWrapper(diffr)

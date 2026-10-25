@@ -43,7 +43,7 @@ hkl = "*"
 [feature.profile.pypi-dependencies]
 # TODO get this onto conda-forge
 # cditools = { git = "https://github.com/nsls2/cditools", rev="main" }
-cditools = { git = "https://github.com/nsls2/cditools", rev = "ad-hoc-diffractometer" }
+cditools = { git = "https://github.com/nsls2/cditools", rev = "jad-hoc-diffractometer" }
 # cditools = { path = "../../source/nsls2/cditools", editable = true }
 pvxslibs = ">=1.3.2, <2"
 

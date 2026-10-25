@@ -62,20 +62,63 @@ stages:
 modes:
   fixed_incidence:
     constraints:
-      - { type: sample, stage: chi2, value: 0.0 }
-      - { type: sample, stage: omega2, value: 0.0 }
       - { type: sample, stage: chi1, value: 0.0 }
-      # - { type: detector, stage: gamma, value: 0.0 }
+      - { type: sample, stage: omega2, value: 0.0 }
+      - { type: sample, stage: chi2, value: 0.0 }
       - { type: reference, name: incidence, value: 5.0 }
-    computed: [mu, omega1, delta, gamma]
+    computed: [mu, omega1, gamma, delta]
     extras:
       n_hat: REQUIRED
       incidence: REQUIRED
 
-  fixed_chi1_chi2_omega2:
+  fixed_mu_omega2_chi2_gamma:
+    constraints:
+      - { type: sample, stage: mu, value: 0.0 }
+      - { type: sample, stage: omega2, value: 0.0 }
+      - { type: sample, stage: chi2, value: 0.0 }
+      - { type: detector, stage: gamma, value: 0.0 }
+    computed: [omega1, chi1, delta]
+    
+  fixed_omega1_omega2_chi2_gamma:
+    constraints:
+      - { type: sample, stage: omega1, value: 0.0 }
+      - { type: sample, stage: omega2, value: 0.0 }
+      - { type: sample, stage: chi2, value: 0.0 }
+      - { type: detector, stage: gamma, value: 0.0 }
+    computed: [mu, chi1, delta]
+ 
+  fixed_chi1_omega2_chi2_gamma:
     default: true
     constraints:
-      - { type: sample, stage: chi2, value: 0.0 }
-      - { type: sample, stage: omega2, value: 0.0 }
       - { type: sample, stage: chi1, value: 0.0 }
-    computed: [mu, omega1, delta, gamma]
+      - { type: sample, stage: omega2, value: 0.0 }
+      - { type: sample, stage: chi2, value: 0.0 }
+      - { type: detector, stage: gamma, value: 0.0 }
+    computed: [mu, omega1, delta]
+
+  fixed_mu_omega2_chi2_delta:
+    constraints:
+      - { type: sample, stage: mu, value: 0.0 }
+      - { type: sample, stage: omega2, value: 0.0 }
+      - { type: sample, stage: chi2, value: 0.0 }
+      - { type: detector, stage: delta, value: 0.0 }
+    computed: [omega1, chi1, gamma]
+ 
+  fixed_omega1_omega2_chi2_delta:
+    constraints:
+      - { type: sample, stage: omega1, value: 0.0 }
+      - { type: sample, stage: omega2, value: 0.0 }
+      - { type: sample, stage: chi2, value: 0.0 }
+      - { type: detector, stage: delta, value: 0.0 }
+    computed: [mu, chi1, gamma]
+
+  fixed_chi1_omega2_chi2_delta:
+    constraints:
+      - { type: sample, stage: chi1, value: 0.0 }
+      - { type: sample, stage: omega2, value: 0.0 }
+      - { type: sample, stage: chi2, value: 0.0 }
+      - { type: detector, stage: delta, value: 0.0 }
+    computed: [mu, omega1, gamma]
+ 
+
+ 
