@@ -8,15 +8,19 @@ import bluesky.plans as bp
 import hklpy2
 import hklpy2.blocks.reflection
 import hklpy2.user
+from hklpy2.incident import WavelengthXray
+from hklpy2.run_utils import ConfigurationRunWrapper
 from cditools.tdms import TDMSAxis
 from cditools.motors import Energy
 from ophyd import Component as Cpt, FormattedComponent as FCpt
-from ophyd import EpicsMotor
-from bluesky import RunEngine
+from ophyd import EpicsMotor, PseudoPositioner, PseudoSingle, Signal
+from ophyd.pseudopos import pseudo_position_argument, real_position_argument
+from ophyd.signal import AttributeSignal
 from bluesky.callbacks.best_effort import BestEffortCallback
-from hklpy2.user import cahkl_table
+from hklpy2.user import cahkl_table, pa
 from hklpy2.utils import pick_closest_solution
 from cditools.diffractometer import CDIDiffractometer
+import xrayutilities.materials as mat
 
 
 """
@@ -67,20 +71,152 @@ real_tdms2_angles = {
     }
 }
 
-# TODO - have to combine Energy and WavelengthXRay classes for this to work
-# or have a .wavelength method on Energy class
-# beam_kwargs = {
-#     "class": Energy
-# }
+from hklpy2.utils import INTERNAL_XRAY_ENERGY_UNITS, INTERNAL_LENGTH_UNITS
+from ophyd import Device
+XRAY_ENERGY_EQUIVALENT_: float = 8.065_543_937e5
+A_KEV: float = 1e7 / XRAY_ENERGY_EQUIVALENT_  # 1 Angstrom ~= 12.39842 keV
+
+class CDIBeam(Device):
+    """
+    hklpy2 wants to read energy from an ophyd device that has specific signals,
+    so this is needed to get energy from the already existing CDI Energy defined 
+    in `cditools.motors`. Further, we don't want functionality for setting energy
+    through hklpy2, which is why this doesn't inherit from any in `hklpy2.incident`
+    """
+    energy = Cpt(AttributeSignal, attr="_energy", kind="hinted", write_access=False)
+    wavelength = Cpt(AttributeSignal, attr="_wavelength", kind="hinted", write_access=False)
+    energy_units = Cpt(Signal, value=INTERNAL_XRAY_ENERGY_UNITS, kind="config")
+    wavelength_units = Cpt(Signal, value=INTERNAL_LENGTH_UNITS, kind="config")
+
+    def __init__(self, cdi_energy_device: Energy, *args, **kwargs):
+        self.cdi_energy_device = cdi_energy_device
+        super().__init__(*args, **kwargs)
+
+        # make sure energy/wavelength are initalized
+        self.energy.get()
+        self.wavelength.get()
+
+    @property
+    def _energy(self) -> float:
+        return self.cdi_energy_device.energy.position
+
+    @property
+    def _wavelength(self) -> float:
+        return self._energy * 100
+
+    def _to_wavelength(self, value: float) -> float:
+        """Convert E to lambda."""
+        from hklpy2.utils import convert_units
+
+        energy = convert_units(
+            value, self.energy_units.get(), INTERNAL_XRAY_ENERGY_UNITS
+        )
+        return convert_units(
+            A_KEV / energy, INTERNAL_LENGTH_UNITS, self.wavelength_units.get()
+        )
+
+    def _to_energy(self, value: float) -> float:
+        """Convert lambda to E."""
+        from hklpy2.utils import convert_units
+
+        wavelength = convert_units(
+            value, self.wavelength_units.get(), INTERNAL_LENGTH_UNITS
+        )
+        return convert_units(
+            A_KEV / wavelength, INTERNAL_XRAY_ENERGY_UNITS, self.energy_units.get()
+        )
+
+# import numpy as np
+# class Energy(PseudoPositioner):
+#     bragg = Cpt(EpicsMotor, "Mono:HDCM-Ax:Bragg}Mtr")
+#     cgap = Cpt(EpicsMotor, "Mono:HDCM-Ax:HG}Mtr")
+#     # Synthetic Axis
+#     energy = Cpt(PseudoSingle, egu="KeV")
+
+#     # Energy "limits"
+#     _low = 5.0  # TODO: CHECK THIS VALUE
+#     _high = 15.0  # TODO: CHECK THIS VALUE
+
+#     # Set up constants
+#     Xoffset = 20.0  # mm
+#     d_111 = 3.1286911960950756
+#     ANG_OVER_KEV = 12.3984
+
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.energy.readback.name = "energy"
+#         self.energy.setpoint.name = "energy_setpoint"
+
+#     def energy_to_positions(self, target_energy: float):
+#         """Compute undulator and mono positions given a target energy
+
+#         Parameters
+#         ----------
+#         target_energy : float
+#             Target energy in keV
+
+#         Returns
+#         -------
+#         bragg : float
+#             The angle to set the monocromotor in radians
+#         gap : float
+#             The gap position in millimeters
+#         """
+
+#         # Calculate Bragg RBV
+#         bragg = np.arcsin((self.ANG_OVER_KEV / target_energy) / (2 * self.d_111))
+
+#         # Calculate C2X
+#         gap = self.Xoffset / 2 / np.cos(bragg)
+
+#         return bragg, gap
+
+#     @pseudo_position_argument
+#     def forward(self, p_pos):
+#         energy = p_pos.energy  # energy assumed in keV
+#         bragg, gap = self.energy_to_positions(energy)
+#         return self.RealPosition(bragg=np.rad2deg(bragg), cgap=gap)
+
+#     @real_position_argument
+#     def inverse(self, r_pos):
+#         bragg = np.deg2rad(10)
+#         e = self.ANG_OVER_KEV / (2 * self.d_111 * np.sin(bragg))
+#         return self.PseudoPosition(energy=float(e))
+
+
+
+if "energy" not in locals():
+    energy = Energy(prefix="XF:09IDA-OP:1{", name="energy", labels=["dcm"])
+
 
 diffr = hklpy2.creator(
     prefix="XF:09IDC-",
     name="diffr",
     solver="ad_hoc",
     geometry="cdi-geometry",
-    reals=real_gon_angles | real_tdms1_angles,
-    class_bases=[CDIDiffractometer],
+    beam_kwargs={
+        "class": CDIBeam,
+        "cdi_energy_device": energy
+    },
+    # reals=real_gon_angles | real_tdms1_angles,
 )
 
-diffr.add_sample("Au", a=4.08)
-diffr.beam.energy.put(energy.energy)
+# rotation constraints
+diffr.core.constraints["mu"].limits = (-180, 180)
+diffr.core.constraints["omega1"].limits = (-12, 12)
+diffr.core.constraints["chi1"].limits = (-12, 12)
+diffr.core.constraints["omega2"].limits = (-180, 180)
+diffr.core.constraints["chi2"].limits = (-180, 180)
+diffr.core.constraints["gamma"].limits = (-180, 180)
+diffr.core.constraints["delta"].limits = (-180, 180)
+
+# ruby sample
+diffr.add_sample("Ruby", a=4.7602, c=12.9933, gamma=120)
+
+# gold sample
+diffr.add_sample("Au", a=mat.Au.a)
+
+# saves configuration of diffractometer in every run
+crw = ConfigurationRunWrapper(diffr)
+if 'RE' in locals():
+    RE.preprocessors.append(crw.wrapper)
