@@ -1,7 +1,7 @@
 [workspace]
 channels = ["conda-forge"]
 name = "cdi-profile-collection"
-platforms = [{ platform = "linux-64", glibc = "2.17" }, "osx-64", "osx-arm64"]
+platforms = [{ name = "linux64-glibc228", platform = "linux-64", glibc = "2.28" }, "osx-64", "osx-arm64"]
 version = "2026.2.0"
 requires-pixi = ">=0.82.1"
 
@@ -78,6 +78,7 @@ ruff = "*"
 black = "*"
 isort = "*"
 prettier = "*"
+nodejs = ">=22.23.4,<23"
 nbstripout = "*"
 prek = ">=0.3.8,<0.4"
 virtualenv = ">=21.14.12"
