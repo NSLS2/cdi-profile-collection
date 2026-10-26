@@ -173,12 +173,12 @@ diffr = hklpy2.creator(
 
 # rotation constraints
 diffr.core.constraints["mu"].limits = (-180, 180)
-diffr.core.constraints["omega1"].limits = (-12, 12)
-diffr.core.constraints["chi1"].limits = (-12, 12)
-diffr.core.constraints["omega2"].limits = (-180, 180)
-diffr.core.constraints["chi2"].limits = (-180, 180)
-diffr.core.constraints["gamma"].limits = (-180, 180)
-diffr.core.constraints["delta"].limits = (-180, 180)
+diffr.core.constraints["omega1"].limits = (-15, 15)
+diffr.core.constraints["chi1"].limits = (-15, 15)
+diffr.core.constraints["omega2"].limits = (-11, 11)
+diffr.core.constraints["chi2"].limits = (-11, 11)
+diffr.core.constraints["gamma"].limits = (-6, 117)
+diffr.core.constraints["delta"].limits = (-6, 117)
 
 # ruby sample
 diffr.add_sample("Ruby", a=4.7602, c=12.9933, gamma=120)
