@@ -1,22 +1,26 @@
+from dataclasses import dataclass
 from typing import Annotated as A
 from typing import Sequence
 
+from bluesky.protocols import Reading
 from cditools.eiger_async import EigerDetector
 from cditools.merlin_async import MerlinDetector
 from event_model import DataKey
 from nslsii.ophyd_async.providers import NSLS2PathProvider
 from ophyd_async.core import (
+    DetectorDataLogic,
+    ReadableDataProvider,
     SignalR,
     SignalRW,
     StandardReadable,
     StandardReadableFormat,
     init_devices,
 )
-from ophyd_async.core._utils import merge_gathered_dicts
 from ophyd_async.epics import adcore, advimba
 from ophyd_async.epics.adcore import (
     NDROIIO,
     ADAcquireLogic,
+    ADBaseIO,
     ADState,
     ADWriterFactory,
     AreaDetector,
@@ -67,7 +71,45 @@ class NDCentroid(StandardReadable, EpicsDevice):
 
 
 class EnrichedStats(NDStatsIO, StandardReadable):
+    total: A[
+        SignalR[float],
+        PvSuffix("Total_RBV"),
+        StandardReadableFormat.HINTED_UNCACHED_SIGNAL,
+    ]
     centroid: A[NDCentroid, PvSuffix(""), StandardReadableFormat.CHILD]
+
+
+@dataclass
+class StandardReadableDataProvider(ReadableDataProvider):
+    """Provide the readings of a StandardReadable device."""
+
+    device: StandardReadable
+
+    async def make_datakeys(self) -> dict[str, DataKey]:
+        return await self.device.describe()
+
+    async def make_readings(self) -> dict[str, Reading]:
+        return await self.device.read()
+
+
+@dataclass
+class PluginReadableDataLogic(DetectorDataLogic):
+    """Add a plugin's readables to each event, like PluginSignalDataLogic.
+
+    Plugin PVs only hold values for the latest image, so ophyd-async refuses to
+    prepare a detector using this logic for more than one image per event.
+    """
+
+    driver: ADBaseIO
+    plugin: StandardReadable
+
+    async def prepare_single(self, datakey_name: str) -> StandardReadableDataProvider:
+        # Acquisition must wait for the plugins so reads see the latest image
+        await self.driver.wait_for_plugins.set(True)
+        return StandardReadableDataProvider(self.plugin)
+
+    def get_hinted_fields(self, datakey_name: str) -> Sequence[str]:
+        return self.plugin.hints.get("fields", [])
 
 
 class VimbaAcquireLogic(ADAcquireLogic):
@@ -98,7 +140,21 @@ class VimbaAcquireLogic(ADAcquireLogic):
 
 # TODO - move to ophyd-async
 class TmpAdvimba(AreaDetector[CustomVimbaDriverIO]):
+    """ADVimba detector with Stats1 and ROI1 plugins.
+
+    :param prefix: EPICS PV prefix for the detector
+    :param writer_factories: Factories for file writer plugins and their data logics
+    :param driver_suffix: Suffix for the driver PV, defaults to "cam1:"
+    :param override_deadtime:
+        If provided, this value is used for deadtime instead of looking up
+        based on camera model.
+    :param plugins: Additional areaDetector plugins to include
+    :param config_sigs: Additional signals to include in configuration
+    :param name: Name for the detector device
+    """
+
     stats1: EnrichedStats
+    roi1: NDROIIO
 
     def __init__(
         self,
@@ -127,24 +183,6 @@ class TmpAdvimba(AreaDetector[CustomVimbaDriverIO]):
             config_sigs=config_sigs,
             name=name,
         )
-        self.add_detector_logics(PluginSignalDataLogic(driver, self.stats1.total))
-
-    async def read(self):
-        base = super().read()
-        local = merge_gathered_dicts(st.read() for st in [self.stats1])
-
-        return await merge_gathered_dicts([base, local])
-
-    async def describe(self) -> dict[str, DataKey]:
-        base = super().describe()
-        local = merge_gathered_dicts(st.describe() for st in [self.stats1])
-        return await merge_gathered_dicts([base, local])
-
-    @property
-    def hints(self):
-        base = super().hints
-        base["fields"] = list(set(base.get("fields", []) + self.stats1.hints["fields"]))
-        return base
 
     # TODO need to add read_configuration and describe_configruation to read ROI plugins
 
@@ -219,4 +257,14 @@ with init_devices():
     #     )
 
 eiger.add_detector_logics(PluginSignalDataLogic(eiger.driver,eiger_stats1.total))
+cam1.add_detector_logics(PluginReadableDataLogic(cam1.driver, cam1.stats1))
+cam2.add_detector_logics(PluginReadableDataLogic(cam2.driver, cam2.stats1))
+cam3.add_detector_logics(PluginReadableDataLogic(cam3.driver, cam3.stats1))
+cam4.add_detector_logics(PluginReadableDataLogic(cam4.driver, cam4.stats1))
+cam5.add_detector_logics(PluginReadableDataLogic(cam5.driver, cam5.stats1))
+# No Stats1 readings on cam6: they only support one image per point
+cam7.add_detector_logics(PluginReadableDataLogic(cam7.driver, cam7.stats1))
+cam8.add_detector_logics(PluginReadableDataLogic(cam8.driver, cam8.stats1))
+cam9.add_detector_logics(PluginReadableDataLogic(cam9.driver, cam9.stats1))
+cam10.add_detector_logics(PluginReadableDataLogic(cam10.driver, cam10.stats1))
 
