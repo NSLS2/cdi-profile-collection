@@ -82,5 +82,23 @@ diffr = hklpy2.creator(
     class_bases=[CDIDiffractometer],
 )
 
+# Configure after creating
+hklpy2.user.set_diffractometer(diffr)
 diffr.add_sample("Au", a=4.08)
-diffr.beam.energy.put(energy.energy)
+diffr.beam.energy.put(energy.energy.readback.get())
+diffr.core.mode = "fixed_incidence"
+diffr.core.extras = {
+    "n_hat": (1, 1, 1), # pyright: ignore[reportAttributeAccessIssue]
+    "incidence": 21.1
+    }
+# Done setting up.
+hkl_or = (4, 0, 0)
+saved_constraints = {name: (c.low_limit, c.high_limit) for name, c in diffr.core.constraints.items()}
+
+for name in diffr.core.constraints:
+    diffr.core.constraints[name].limits = (-360, 360)
+# diffr1.core.forward gives a list of solutions
+# diffr1.forward gives the first solution
+solutions = diffr.core.forward(hkl_or)
+# print table of solutions:
+cahkl_table(hkl_or)
