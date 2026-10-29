@@ -47,8 +47,8 @@ class I400(Device):
 
 class F460(Device):
     # CDI uses this as a single-channel read-out for the foil intensity monitor
-    channel1 = Cpt(EpicsSignalRO, "Cur:I0-I", kind="hinted")
-    channel2 = Cpt(EpicsSignalRO, "Cur:I1-I", kind="hinted")
+    channel1 = Cpt(EpicsSignalRO, "Cur:I0-I", kind="normal")
+    channel2 = Cpt(EpicsSignalRO, "Cur:I1-I", kind="normal")
     channel3 = Cpt(EpicsSignalRO, "Cur:I2-I", kind="normal")
     channel4 = Cpt(EpicsSignalRO, "Cur:I3-I", kind="normal")
 
