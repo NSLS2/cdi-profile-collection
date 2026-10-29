@@ -25,7 +25,7 @@ default_devices_v1=[gon.align.x,gon.align.y,gon.align.z,gon.align.rx,gon.align.r
     tdms_arm2_tz, tdms_arm2_ty, tdms_arm2_tx, tdms_arm2_ay, tdms_arm2_ax]
 
 # a generic wrapper for bp.scan that includes our custom metadata
-def CDI_scan(det,mot,start,stop,num,*,state_devices=default_devices_v1,md=None):
+def CDI_scan(det,mot,start,stop,num,*,state_devices=default_devices_v1,md=None,per_step=None):
     """
     Wrapper for bp.scan that follows the same usage patterns while adding
     CDI-specific metadata.
@@ -54,7 +54,7 @@ def CDI_scan(det,mot,start,stop,num,*,state_devices=default_devices_v1,md=None):
         _md['instr_state'].update({mname:trunc(mval)})
 
 
-    return (yield from bp.scan(det,mot,start,stop,num,md=_md))
+    return (yield from bp.scan(det,mot,start,stop,num,md=_md, per_step=per_step))
 
 #the two primary data collection modes are to rock \mu or scan the energy
 
