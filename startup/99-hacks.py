@@ -14,6 +14,8 @@ import asyncio
 sd = SupplementalData(baseline=None,monitors=[tetra.posX,tetra.posY,tetra.sumI,f460.channel2],flyers=None)
 RE.preprocessors.append(sd)
 
+bec.disable_plots()
+
 gap_ev = [
     [ 4629,   1637],
     [ 4799,   1707],
