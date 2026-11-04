@@ -3,7 +3,7 @@ print(f"Loading {__file__!r} ...")
 import os
 
 import nslsii
-from bluesky.callbacks.tiled_writer import TiledWriter
+from bluesky_tiled_plugins import BufferingWrapper, TiledWriter
 from ophyd.signal import EpicsSignalBase
 from tiled.client import from_uri
 import bluesky.utils as bsu
@@ -36,7 +36,14 @@ c = tiled_reading_client = from_uri(
 )
 c.context.http_client.headers["tiled-qos"] = "acquisition"
 
-tw = TiledWriter(client=tiled_writing_client)
+TILED_BACKUP_ROOT = "/nsls2/data/cdi/shared/config/bluesky/tiled_backup"
+
+tw = TiledWriter(client=tiled_writing_client,
+                 backup_directory=f"{TILED_BACKUP_ROOT}/sql")
+
+# Thread-safe wrapper for TiledWriter: documents are buffered in an
+# in-process queue, so the RunEngine never blocks on Tiled.
+tw = BufferingWrapper(tw)
 
 RE.subscribe(tw)  # noqa: F821
 # RE.msg_hook = bsu.ts_msg_hook
