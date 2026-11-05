@@ -32,13 +32,14 @@ DiffractometerBase.__init__() method does not accept a KeyValueMap for the
 angles.
 """
 
-# Register geometry
+# 1. Register geometry
 try:
     ahd.register_geometry_file("./diffractometer-geometry.yml", name="cdi-geometry")
 except ValueError:  # geometry already registered
     contextlib.suppress(ValueError)
 
 
+# 2. Set up goniometer and tdms angles
 real_gon_angles = {
     "mu": "OP:1{Gon:1-Ax:Ry}Mtr",
     "omega1": "OP:1{Gon:1-Ax:Rx2}Mtr",
@@ -73,6 +74,7 @@ real_tdms2_angles = {
 #     "class": Energy
 # }
 
+# 3. Create diffractometer
 diffr = hklpy2.creator(
     prefix="XF:09IDC-",
     name="diffr",
@@ -83,14 +85,56 @@ diffr = hklpy2.creator(
 )
 
 # Configure after creating
-hklpy2.user.set_diffractometer(diffr)
+# hklpy2.user.set_diffractometer(diffr)
+# 4. Add sample
 diffr.add_sample("Au", a=4.08)
+
+# 5. Add energy
+# TODO - check units
 diffr.beam.energy.put(energy.energy.readback.get())
+
+# 6. Set mode
 diffr.core.mode = "fixed_incidence"
+
+# 7. Set extras
 diffr.core.extras = {
     "n_hat": (1, 1, 1), # pyright: ignore[reportAttributeAccessIssue]
     "incidence": 21.1
     }
+
+# 8. Set reflections
+hkl1 = (1,0,0)
+diffr.add_reflection(
+    pseudos=hkl1,
+    reals={
+        "mu": 18.2,
+        "omega1": 0,
+        "chi1": 1.4,
+        "omega2": 0,
+        "chi2": 0,
+        "gamma": 0.47,
+        "delta": 31.84
+    }
+)
+
+hkl2 = (2,0,0)
+diffr.add_reflection(
+    pseudos=hkl2,
+    reals = {
+        "mu": 3,
+        "omega1": 0,
+        "chi1": 0,
+        "omega2": 0,
+        "chi2": 0,
+        "gamma": 2.39,
+        "delta": 38.5,
+    }
+)
+
+ub_mat = diffr.core.calc_UB(*diffr.sample.reflections)
+
+# g = ahd.make_geometry("cdi-geometry")
+
 # Done setting up.
 hkl_or = (4, 0, 0)
 saved_constraints = {name: (c.low_limit, c.high_limit) for name, c in diffr.core.constraints.items()}
