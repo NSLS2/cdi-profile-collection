@@ -66,7 +66,7 @@ modes:
       - { type: sample, stage: omega2, value: 0.0 }
       - { type: sample, stage: chi1, value: 0.0 }
       # - { type: detector, stage: gamma, value: 0.0 }
-      - { type: reference, name: incidence, value: 5.0 }
+      - { type: reference, name: incidence, value: 0.0 } # incidence value should be a number that does not make sense so user has to set it
     computed: [mu, omega1, delta, gamma]
     extras:
       n_hat: REQUIRED

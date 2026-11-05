@@ -39,6 +39,7 @@ except ValueError:  # geometry already registered
     contextlib.suppress(ValueError)
 
 
+# Set up goniometer and tdms angles
 real_gon_angles = {
     "mu": "OP:1{Gon:1-Ax:Ry}Mtr",
     "omega1": "OP:1{Gon:1-Ax:Rx2}Mtr",
@@ -73,6 +74,7 @@ real_tdms2_angles = {
 #     "class": Energy
 # }
 
+# Create diffractometer
 diffr = hklpy2.creator(
     prefix="XF:09IDC-",
     name="diffr",
@@ -82,15 +84,64 @@ diffr = hklpy2.creator(
     class_bases=[CDIDiffractometer],
 )
 
-# Configure after creating
-hklpy2.user.set_diffractometer(diffr)
-diffr.add_sample("Au", a=4.08)
+diffr.core.constraints["mu"].limits = (-180, 180)
+diffr.core.constraints["omega1"].limits = (-15, 15)
+diffr.core.constraints["chi1"].limits = (-15, 15)
+diffr.core.constraints["omega2"].limits = (-11, 11)
+diffr.core.constraints["chi2"].limits = (-11, 11)
+diffr.core.constraints["gamma"].limits = (-6, 117)
+diffr.core.constraints["delta"].limits = (-6, 117)
+
+# Add energy
+# TODO - check units
 diffr.beam.energy.put(energy.energy.readback.get())
+
+"""
+# Configure after creating
+# hklpy2.user.set_diffractometer(diffr)
+# Add sample
+diffr.add_sample("Au", a=4.08)
+
+# Set mode
 diffr.core.mode = "fixed_incidence"
+
+# Set extras
 diffr.core.extras = {
     "n_hat": (1, 1, 1), # pyright: ignore[reportAttributeAccessIssue]
     "incidence": 21.1
     }
+
+# Set reflections
+hkl1 = (1,0,0)
+diffr.add_reflection(
+    pseudos=hkl1,
+    reals={
+        "mu": 18.2,
+        "omega1": 0,
+        "chi1": 1.4,
+        "omega2": 0,
+        "chi2": 0,
+        "gamma": 0.47,
+        "delta": 31.84
+    }
+)
+
+hkl2 = (2,0,0)
+diffr.add_reflection(
+    pseudos=hkl2,
+    reals = {
+        "mu": 3,
+        "omega1": 0,
+        "chi1": 0,
+        "omega2": 0,
+        "chi2": 0,
+        "gamma": 2.39,
+        "delta": 38.5,
+    }
+)
+
+ub_mat = diffr.core.calc_UB(*diffr.sample.reflections)
+
 # Done setting up.
 hkl_or = (4, 0, 0)
 saved_constraints = {name: (c.low_limit, c.high_limit) for name, c in diffr.core.constraints.items()}
@@ -102,3 +153,4 @@ for name in diffr.core.constraints:
 solutions = diffr.core.forward(hkl_or)
 # print table of solutions:
 cahkl_table(hkl_or)
+"""
