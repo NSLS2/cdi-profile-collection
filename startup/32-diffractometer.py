@@ -74,11 +74,14 @@ real_tdms2_angles = {
 #     "class": Energy
 # }
 
+# solver = "ad_hoc"
+solver = "cdi_ad_hoc"
+
 # Create diffractometer
 diffr = hklpy2.creator(
     prefix="XF:09IDC-",
     name="diffr",
-    solver="ad_hoc",
+    solver=solver,
     geometry="cdi-geometry",
     reals=real_gon_angles | real_tdms1_angles,
     class_bases=[CDIDiffractometer],
@@ -100,7 +103,11 @@ diffr.beam.energy.put(energy.energy.readback.get())
 # Configure after creating
 # hklpy2.user.set_diffractometer(diffr)
 # Add sample
+# Gold
 diffr.add_sample("Au", a=4.08)
+
+# Ruby
+diffr.add_sample("Ruby", a=4.7602, c=12.9933, gamma=120)
 
 # Set mode
 diffr.core.mode = "fixed_incidence"
