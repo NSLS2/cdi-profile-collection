@@ -9,13 +9,30 @@ from bluesky.preprocessors import SupplementalData
 import numpy as np
 from scipy.interpolate import CubicSpline
 import asyncio
+import warnings
 
 #use BPM as monitor for now.  add ion chambers later
 sd = SupplementalData(baseline=None,monitors=[tetra.posX,tetra.posY,tetra.sumI,f460.channel2],flyers=None)
 RE.preprocessors.append(sd)
 
+#plots for most scans are distracting and can cause slowdowns
+#turn them on when we need them, but disable by default
 bec.disable_plots()
 
+#try to suppress warning about LiveTable failing to display image data
+#this seems like a crude approach when the better one would be the equivalent
+#of image.kind='omitted', but it seems that I would need to travel up through
+#several levels of inheiritance to set the array to omitted for the bec using 
+#ophyd-async.
+warnings.filterwarnings(
+    "ignore",
+    message=".*will be skipped because LiveTable does not know how to display the dtype array.*",
+    category=UserWarning,
+    module="bluesky"
+)
+
+
+#IVU calibration constants
 gap_ev = [
     [ 4629,   1637],
     [ 4799,   1707],

@@ -257,12 +257,13 @@ with init_devices(mock = RUNNING_IN_NSLS2_CI):
     #     )
 
 eiger.add_detector_logics(PluginSignalDataLogic(eiger.driver,eiger_stats1.total))
-cam1.add_detector_logics(PluginReadableDataLogic(cam1.driver, cam1.stats1))
+#cam1.add_detector_logics(PluginReadableDataLogic(cam1.driver, cam1.stats1))
 cam2.add_detector_logics(PluginReadableDataLogic(cam2.driver, cam2.stats1))
 cam3.add_detector_logics(PluginReadableDataLogic(cam3.driver, cam3.stats1))
 cam4.add_detector_logics(PluginReadableDataLogic(cam4.driver, cam4.stats1))
 cam5.add_detector_logics(PluginReadableDataLogic(cam5.driver, cam5.stats1))
 # No Stats1 readings on cam6: they only support one image per point
+#cam6.add_detector_logics(PluginReadableDataLogic(cam6.driver, cam6.stats1))
 cam7.add_detector_logics(PluginReadableDataLogic(cam7.driver, cam7.stats1))
 cam8.add_detector_logics(PluginReadableDataLogic(cam8.driver, cam8.stats1))
 cam9.add_detector_logics(PluginReadableDataLogic(cam9.driver, cam9.stats1))
