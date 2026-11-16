@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import math
+from pathlib import Path
 
 import ad_hoc_diffractometer as ahd
 import bluesky.plans as bp
@@ -34,7 +35,10 @@ angles.
 
 # Register geometry
 try:
-    ahd.register_geometry_file("./diffractometer-geometry.yml", name="cdi-geometry")
+    ahd.register_geometry_file(
+        str(Path(__file__).resolve().parent.parent / "diffractometer-geometry.yml"),
+        name="cdi-geometry"
+    )
 except ValueError:  # geometry already registered
     contextlib.suppress(ValueError)
 
@@ -74,8 +78,8 @@ real_tdms2_angles = {
 #     "class": Energy
 # }
 
-# solver = "ad_hoc"
-solver = "cdi_ad_hoc"
+solver = "ad_hoc"
+# solver = "cdi_ad_hoc"
 
 # Create diffractometer
 diffr = hklpy2.creator(
